@@ -23,7 +23,8 @@ move, scale, rotate by matrix
 rotate by quaternion
 push-pull polygon on brep
 sweep polygon by line or polyline
+intersect for line-line, face-face, cell-cell
 cap
 slice
 boolean operations
-Struct BoundingBox
+more methods for all structs

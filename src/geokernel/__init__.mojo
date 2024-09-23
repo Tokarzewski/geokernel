@@ -1,5 +1,5 @@
 from .ftype import FType
-from .bounding_box import BoundingBox
+from .aabb import AABB
 from .cell import Cell
 from .line import Line
 from .plane import Plane

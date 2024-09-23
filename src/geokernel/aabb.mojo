@@ -2,7 +2,9 @@ from geokernel import Point
 
 
 @value
-struct BoundingBox:
+struct AABB:
+    """Axis Aligned Bounding Box."""
+
     var p_min: Point
     var p_max: Point
 
