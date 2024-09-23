@@ -1,6 +1,6 @@
 # geokernel-mojo
 
-geometry kernel written in mojo
+3D geometry library written in mojo
 
 # Roadmap
 intersect for line-line, face-face, cell-cell
