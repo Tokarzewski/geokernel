@@ -1,5 +1,5 @@
 from geokernel import FType, Point
-from math import sqrt, acos, pi
+from math import sqrt
 
 
 @value
@@ -54,10 +54,14 @@ struct Vector4(Representable):
         )
 
     fn __mul__(self, scalar: FType) -> Self:
-        return Self(self.x * scalar, self.y * scalar, self.z * scalar, self.w * scalar)
+        return Self(
+            self.x * scalar, self.y * scalar, self.z * scalar, self.w * scalar
+        )
 
     fn __truediv__(self, scalar: FType) -> Self:
-        return Self(self.x / scalar, self.y / scalar, self.z / scalar, self.w / scalar)
+        return Self(
+            self.x / scalar, self.y / scalar, self.z / scalar, self.w / scalar
+        )
 
     fn __repr__(self) -> String:
         return (
