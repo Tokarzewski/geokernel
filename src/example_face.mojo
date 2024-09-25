@@ -1,5 +1,5 @@
 from testing import assert_equal, assert_true, assert_false
-from geokernel import Point, Face, Vector
+from geokernel import Point, Face, Vector3
 
 
 fn main():
@@ -19,7 +19,7 @@ fn main():
     print("normal vector of reversed", repr(square.reverse().normal()))
     print(repr(square.wire()))
 
-    var unit_z = Vector.unitZ()
+    var unit_z = Vector3.unitZ()
     var cube = square.extrude(unit_z)
     print(repr(cube))
     print("Cube volume", cube.volume())

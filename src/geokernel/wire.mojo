@@ -1,4 +1,4 @@
-from geokernel import FType, Point, Line, Vector
+from geokernel import FType, Point, Line, Vector3
 
 
 @value
@@ -51,7 +51,7 @@ struct Wire:
             _ = self.points[i].move(dx, dy, dz)
         return self
 
-    fn move_by_vector(inout self, v: Vector) -> Self:
+    fn move_by_vector(inout self, v: Vector3) -> Self:
         return self.move(v.x, v.y, v.z)
 
     fn moved(self, dx: FType, dy: FType, dz: FType) -> Self:
@@ -60,10 +60,10 @@ struct Wire:
             moved_points.append(self.points[i].moved(dx, dy, dz))
         return Self(moved_points)
 
-    fn moved_by_vector(self, v: Vector) -> Self:
+    fn moved_by_vector(self, v: Vector3) -> Self:
         return self.moved(v.x, v.y, v.z)
 
-    fn extrude(self, v: Vector) -> Shell:
+    fn extrude(self, v: Vector3) -> Shell:
         var faces = List[Face]()
         for i in range(self.num_segments()):
             var face = self.get_segment(i).extrude(v)

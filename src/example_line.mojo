@@ -1,4 +1,4 @@
-from geokernel import Point, Line, Vector
+from geokernel import Point, Line, Vector3
 
 
 fn main():
@@ -28,6 +28,6 @@ fn main():
 
     print("Moved line3", repr(line3.moved(0, 0, 1)))
 
-    var direction = Vector(0, 0, 5)
+    var direction = Vector3(0, 0, 5)
     var extruded_line = line1.extrude(direction)
     print(repr(extruded_line))

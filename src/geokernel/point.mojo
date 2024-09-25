@@ -1,4 +1,4 @@
-from geokernel import FType, Vector
+from geokernel import FType, Vector3
 import math
 
 
@@ -35,22 +35,8 @@ struct Point(Movable):
     fn __truediv__(self, scalar: FType) -> Self:
         return Self(self.x / scalar, self.y / scalar, self.z / scalar)
 
-    # fn __str__(self) -> String:
-    #    return String("{!s} {!s} {!s}").format(self.x, self.y, self.z)
-
-    # fn format_to(self, inout writer: Formatter):
-    #    writer.write("(", self.x, ", ", self.y, ")")
-
     fn __repr__(self) -> String:
-        return (
-            "Point("
-            + str(self.x)
-            + ", "
-            + str(self.y)
-            + ", "
-            + str(self.z)
-            + ")"
-        )
+        return "Point(" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ")"
 
     fn isclose(self, other: Point, atol: FType, rtol: FType) -> Bool:
         return (
@@ -65,11 +51,11 @@ struct Point(Movable):
         self.z = self.z + dz
         return self
 
-    fn move_by_vector(inout self, v: Vector) -> Self:
-        return self.move(v.x, v.y, v.z)
-
     fn moved(self, dx: FType, dy: FType, dz: FType) -> Self:
         return Self(self.x + dx, self.y + dy, self.z + dz)
 
-    fn moved_by_vector(self, v: Vector) -> Self:
+    fn move_by_vector(inout self, v: Vector3) -> Self:
+        return self.move(v.x, v.y, v.z)
+
+    fn moved_by_vector(self, v: Vector3) -> Self:
         return self.moved(v.x, v.y, v.z)

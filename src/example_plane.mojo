@@ -1,15 +1,15 @@
-from geokernel import Point, Plane, Vector
+from geokernel import Point, Plane, Vector3
 
 
 # Example usage
 fn main():
     var point = Point(0, 0, 0)
-    var vector = Vector(0, 0, 1)
+    var vector = Vector3(0, 0, 1)
     var plane = Plane(point, vector)
     var test_point = Point(1, 2, 3)
 
     print("Point:", repr(point))
-    print("Vector:", repr(vector))
+    print("Vector3:", repr(vector))
     print("Plane:", repr(plane))
     print("Test Point:", repr(test_point))
 

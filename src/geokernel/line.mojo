@@ -1,4 +1,4 @@
-from geokernel import FType, Point, Vector, Face
+from geokernel import FType, Point, Vector3, Face
 from math import sqrt
 
 
@@ -10,16 +10,15 @@ struct Line:
     fn __repr__(self) -> String:
         return "Line(" + repr(self.p1) + ", " + repr(self.p2) + ")"
 
-    fn direction(self) -> Vector:
-        return Vector.from_point(self.p2) - Vector.from_point(self.p1)
+    fn direction(self) -> Vector3:
+        return Vector3.from_point(self.p2) - Vector3.from_point(self.p1)
 
     fn length(self) -> FType:
         var direction = self.direction()
         return sqrt(direction.dot(direction))
 
     fn point_at(self, t: FType) -> Point:
-        """Calculate a point along the line at a given parameter t starting from p1.
-        """
+        """Calculate a point along the line at a given parameter t starting from p1."""
         return Point(
             self.p1.x + t * (self.p2.x - self.p1.x),
             self.p1.y + t * (self.p2.y - self.p1.y),
@@ -52,16 +51,16 @@ struct Line:
         _ = self.p2.move(dx, dy, dz)
         return self
 
-    fn move_by_vector(inout self, v: Vector) -> Self:
+    fn move_by_vector(inout self, v: Vector3) -> Self:
         return self.move(v.x, v.y, v.z)
 
     fn moved(self, dx: FType, dy: FType, dz: FType) -> Self:
         return Self(self.p1.moved(dx, dy, dz), self.p2.moved(dx, dy, dz))
 
-    fn moved_by_vector(self, v: Vector) -> Self:
+    fn moved_by_vector(self, v: Vector3) -> Self:
         return self.moved(v.x, v.y, v.z)
 
-    fn extrude(self, v: Vector) -> Face:
+    fn extrude(self, v: Vector3) -> Face:
         var line2 = self.moved_by_vector(v)
 
         return Face(List[Point](self.p1, self.p2, line2.p2, line2.p1))

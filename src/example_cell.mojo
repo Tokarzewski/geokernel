@@ -19,9 +19,7 @@ fn main():
     var square5 = Face(List[Point](p3, p4, p8, p7))  # Back face
     var square6 = Face(List[Point](p4, p1, p5, p8))  # Left face
 
-    var cube = Cell(
-        List[Face](square1, square2, square3, square4, square5, square6)
-    )
+    var cube = Cell(List[Face](square1, square2, square3, square4, square5, square6))
     print(repr(cube))
     print("cube area:", cube.area())
     print("cube volume:", cube.volume())

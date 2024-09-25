@@ -1,4 +1,4 @@
-from geokernel import FType, Point, Line, Wire, Vector, Cell
+from geokernel import FType, Point, Line, Wire, Vector3, Cell
 from math import sqrt
 
 
@@ -46,27 +46,27 @@ struct Face:
 
     fn area(self) -> FType:
         var ref_point = self.points[0]
-        var normal = Vector(0, 0, 0)
+        var normal = Vector3(0, 0, 0)
 
         for i in range(1, self.num_vertices() - 1):
-            var v1 = Vector.from_points(ref_point, self.points[i])
-            var v2 = Vector.from_points(ref_point, self.points[i + 1])
+            var v1 = Vector3.from_points(ref_point, self.points[i])
+            var v2 = Vector3.from_points(ref_point, self.points[i + 1])
             normal = normal + v1.cross(v2)
 
         return normal.length() / 2.0
 
-    fn normal(self) -> Vector:
+    fn normal(self) -> Vector3:
         var p1 = self.points[0]
         var p2 = self.points[1]
-        var v1 = Vector.from_points(p1, p2)
+        var v1 = Vector3.from_points(p1, p2)
 
         for i in range(self.num_vertices()):
             var p3 = self.points[(i + 2)]
-            var v2 = Vector.from_points(p1, p3)
+            var v2 = Vector3.from_points(p1, p3)
             var cross_product = v1.cross(v2)
             if cross_product.length() > 0:
                 return cross_product.normalize()
-        return Vector(0, 0, 0)
+        return Vector3(0, 0, 0)
 
     fn centroid(self) -> Point:
         var weighted_sum = Point(0, 0, 0)
@@ -77,8 +77,8 @@ struct Face:
             var p2 = self.points[(i + 1) % self.num_vertices()]
             var p3 = self.points[(i + 2) % self.num_vertices()]
 
-            var cross_product = Vector.from_points(p1, p2).cross(
-                Vector.from_points(p1, p3)
+            var cross_product = Vector3.from_points(p1, p2).cross(
+                Vector3.from_points(p1, p3)
             )
             var triangle_area = cross_product.length() / 2.0
 
@@ -94,7 +94,7 @@ struct Face:
             _ = self.points[i].move(dx, dy, dz)
         return self
 
-    fn move_by_vector(inout self, v: Vector) -> Self:
+    fn move_by_vector(inout self, v: Vector3) -> Self:
         return self.move(v.x, v.y, v.z)
 
     fn moved(self, dx: FType, dy: FType, dz: FType) -> Self:
@@ -103,10 +103,10 @@ struct Face:
             moved_points.append(self.points[i].moved(dx, dy, dz))
         return Self(moved_points)
 
-    fn moved_by_vector(self, v: Vector) -> Self:
+    fn moved_by_vector(self, v: Vector3) -> Self:
         return self.moved(v.x, v.y, v.z)
 
-    fn extrude(self, v: Vector) -> Cell:
+    fn extrude(self, v: Vector3) -> Cell:
         var faces = List[Face]()
         faces.append(self)  # original polygon
         faces.append(self.moved_by_vector(v))  # moved polygon

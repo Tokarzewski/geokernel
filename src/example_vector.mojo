@@ -1,11 +1,11 @@
-from geokernel import Vector
+from geokernel import Vector3
 from math import pi
 
 
 # Example usage
 fn main():
-    var v1 = Vector(1, 0, 0)
-    var v2 = Vector(0, 1, 0)
+    var v1 = Vector3(1, 0, 0)
+    var v2 = Vector3(0, 1, 0)
 
     print("v1:", repr(v1))
     print("v2:", repr(v2))

@@ -1,4 +1,4 @@
-from geokernel import Point, Wire, Vector
+from geokernel import Point, Wire, Vector3
 
 
 # Example usage
@@ -19,4 +19,4 @@ fn main():
     print("Is closed: " + str(closed_wire.is_closed()))
     print("Reversed:", repr(closed_wire.reverse()))
     print("Double Reversed:", repr(closed_wire.reverse().reverse()))
-    print(repr(wire.extrude(Vector.from_point(p2))))
+    print(repr(wire.extrude(Vector3.from_point(p2))))
