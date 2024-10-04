@@ -51,7 +51,7 @@ struct Face:
         for i in range(1, self.num_vertices() - 1):
             var v1 = Vector3.from_points(ref_point, self.points[i])
             var v2 = Vector3.from_points(ref_point, self.points[i + 1])
-            normal = normal + v1.cross(v2)
+            normal += v1.cross(v2)
 
         return normal.length() / 2.0
 
@@ -77,14 +77,11 @@ struct Face:
             var p2 = self.points[(i + 1) % self.num_vertices()]
             var p3 = self.points[(i + 2) % self.num_vertices()]
 
-            var cross_product = Vector3.from_points(p1, p2).cross(
-                Vector3.from_points(p1, p3)
-            )
-            var triangle_area = cross_product.length() / 2.0
-
+            var triangle = Face(List[Point](p1, p2, p3))
+            var triangle_area = triangle.area()
             var triangle_centroid = (p1 + p2 + p3) / 3
 
-            weighted_sum = weighted_sum + triangle_centroid * triangle_area
+            weighted_sum += triangle_centroid * triangle_area
             total_area += triangle_area
 
         return weighted_sum / total_area
@@ -113,7 +110,7 @@ struct Face:
         faces.extend(self.wire().extrude(v).faces)  # sides
         return Cell(faces)
 
-    # fn triangulate():
+    # fn triangulate(self) -> List[Face]:
 
 
 # Rotate, Scale, Transform

@@ -7,9 +7,8 @@ fn main():
     var p2 = Point(1, 0, 0)
     var p3 = Point(1, 1, 0)
     var p4 = Point(0, 1, 0)
-    var p5 = Point(0.5, 0, 0)
 
-    var square = Face(List[Point](p5, p4, p3, p2, p1))
+    var square = Face(List[Point](p1, p2, p3, p4))
 
     print(repr(square))
     print("perimeter:", square.perimeter())
@@ -19,7 +18,7 @@ fn main():
     print("normal vector of reversed", repr(square.reverse().normal()))
     print(repr(square.wire()))
 
-    var unit_z = Vector3.unitZ()
-    var cube = square.extrude(unit_z)
+    var diagonal = Vector3(1, 1, 1)
+    var cube = square.extrude(diagonal)
     print(repr(cube))
     print("Cube volume", cube.volume())

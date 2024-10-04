@@ -4,8 +4,6 @@ from math import sqrt, acos, pi
 
 @value
 struct Vector3(Representable):
-    """Vector - with 3 dimensions and Ftype precision."""
-
     var x: FType
     var y: FType
     var z: FType
@@ -46,8 +44,14 @@ struct Vector3(Representable):
     fn __add__(self, other: Self) -> Self:
         return Self(self.x + other.x, self.y + other.y, self.z + other.z)
 
+    fn __iadd__(inout self, other: Self):
+        self = self.__add__(other)
+
     fn __sub__(self, other: Self) -> Self:
         return Self(self.x - other.x, self.y - other.y, self.z - other.z)
+
+    fn __isub__(inout self, other: Self):
+        self = self.__sub__(other)
 
     fn __mul__(self, scalar: FType) -> Self:
         return Self(self.x * scalar, self.y * scalar, self.z * scalar)
@@ -56,7 +60,15 @@ struct Vector3(Representable):
         return Self(self.x / scalar, self.y / scalar, self.z / scalar)
 
     fn __repr__(self) -> String:
-        return "Vector3(" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ")"
+        return (
+            "Vector3("
+            + str(self.x)
+            + ", "
+            + str(self.y)
+            + ", "
+            + str(self.z)
+            + ")"
+        )
 
     fn reverse(inout self) -> Self:
         self.x = -self.x
@@ -77,7 +89,8 @@ struct Vector3(Representable):
         return result
 
     fn cross(self, other: Self) -> Self:
-        """The cross product of two vectors is a vector perpendicular to both."""
+        """The cross product of two vectors is a vector perpendicular to both.
+        """
         return Self(
             self.y * other.z - self.z * other.y,
             self.z * other.x - self.x * other.z,

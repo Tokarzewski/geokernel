@@ -45,6 +45,9 @@ struct Vector4(Representable):
             self.w + other.w,
         )
 
+    fn __iadd__(inout self, other: Self):
+        self = self.__add__(other)
+
     fn __sub__(self, other: Self) -> Self:
         return Self(
             self.x - other.x,
@@ -52,6 +55,9 @@ struct Vector4(Representable):
             self.z - other.z,
             self.w - other.w,
         )
+
+    fn __isub__(inout self, other: Self):
+        self = self.__sub__(other)
 
     fn __mul__(self, scalar: FType) -> Self:
         return Self(

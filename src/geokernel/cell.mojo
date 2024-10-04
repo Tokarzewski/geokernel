@@ -29,7 +29,7 @@ struct Cell:
             face = self.faces[i]
             var normal = face.normal()
             var centroid = face.centroid()
-            var displacement = Vector.from_points(reference_point, centroid)
+            var displacement = Vector3.from_points(reference_point, centroid)
             var signed_volume = normal.dot(displacement) * face.area()
             volume += signed_volume
 

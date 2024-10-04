@@ -4,8 +4,6 @@ import math
 
 @value
 struct Point(Movable):
-    """Point - Point in 3 dimensions and double precision."""
-
     var x: FType
     var y: FType
     var z: FType
@@ -26,8 +24,14 @@ struct Point(Movable):
     fn __add__(self, other: Self) -> Self:
         return Self(self.x + other.x, self.y + other.y, self.z + other.z)
 
+    fn __iadd__(inout self, other: Self):
+        self = self.__add__(other)
+
     fn __sub__(self, other: Self) -> Self:
         return Self(self.x - other.x, self.y - other.y, self.z - other.z)
+
+    fn __isub__(inout self, other: Self):
+        self = self.__sub__(other)
 
     fn __mul__(self, scalar: FType) -> Self:
         return Self(self.x * scalar, self.y * scalar, self.z * scalar)
@@ -36,7 +40,15 @@ struct Point(Movable):
         return Self(self.x / scalar, self.y / scalar, self.z / scalar)
 
     fn __repr__(self) -> String:
-        return "Point(" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ")"
+        return (
+            "Point("
+            + str(self.x)
+            + ", "
+            + str(self.y)
+            + ", "
+            + str(self.z)
+            + ")"
+        )
 
     fn isclose(self, other: Point, atol: FType, rtol: FType) -> Bool:
         return (
