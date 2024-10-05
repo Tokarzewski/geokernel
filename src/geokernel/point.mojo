@@ -16,7 +16,7 @@ struct Point(Movable):
         # self.uuid = generate_uuid()
 
     fn __eq__(self, other: Point) -> Bool:
-        return self.isclose(other, atol=0.0, rtol=1e-15)
+        return self.isclose(other, atol=1e-15, rtol=1e-15)
 
     fn __ne__(self, other: Point) -> Bool:
         return not self.__eq__(other)

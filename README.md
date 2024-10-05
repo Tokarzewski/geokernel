@@ -3,7 +3,7 @@
 3D geometry library written in mojo
 
 # Roadmap
-intersect for line-line, face-face, cell-cell  
+intersect for line-wire, face-face, cell-cell  
 cap  
 slice  
 boolean operations  

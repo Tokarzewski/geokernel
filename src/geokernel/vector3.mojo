@@ -14,11 +14,8 @@ struct Vector3(Representable):
         self.z = z
 
     @staticmethod
-    fn from_point(point: Point) -> Self:
-        x = point.x
-        y = point.y
-        z = point.z
-        return Self(x, y, z)
+    fn from_point(p: Point) -> Self:
+        return Self(p.x, p.y, p.z)
 
     @staticmethod
     fn from_points(p1: Point, p2: Point) -> Self:

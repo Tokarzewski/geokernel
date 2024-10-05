@@ -16,7 +16,9 @@ fn main():
     print("centroid", repr(square.centroid()))
     print("normal vector", repr(square.normal()))
     print("normal vector of reversed", repr(square.reverse().normal()))
-    print(repr(square.wire()))
+
+    var wire = square.wire()
+    print(repr(wire))
 
     var diagonal = Vector3(1, 1, 1)
     var cube = square.extrude(diagonal)
