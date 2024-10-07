@@ -73,13 +73,16 @@ struct Vector3(Representable):
         self.z = -self.z
         return self
 
+    fn reversed(self) -> Self:
+        return self * -1
+
     fn dot(self, other: Self) -> FType:
         """
         The dot product is a scalar value that is the sum of the products of
         the corresponding entries of two vectors. It's the product of the
         lengths of the two vectors and the cosine of the angle between them.
         """
-        var result: FType = 0
+        var result: FType = 0.0
         result += self.x * other.x
         result += self.y * other.y
         result += self.z * other.z
@@ -117,7 +120,4 @@ struct Vector3(Representable):
 
     fn lerp(self, other: Self, t: FType) -> Self:
         """Create a new vector that is a linear blend of two vectors."""
-        var x = self.x + t * (other.x - self.x)
-        var y = self.y + t * (other.y - self.y)
-        var z = self.z + t * (other.z - self.z)
-        return Self(x, y, z)
+        return self + (other - self) * t

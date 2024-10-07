@@ -28,5 +28,6 @@ fn main():
     var angle = v1.angle(v2)
     print("Degree angle between v1 and v2:", angle * 180 / pi)
 
+    print("reversed", repr(v1.reversed()))
     print("reverse", repr(v1.reverse()))
     print("reverse", repr(v1.reverse()))
