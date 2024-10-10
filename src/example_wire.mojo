@@ -1,7 +1,6 @@
 from geokernel import Point, Wire, Vector3
 
 
-# Example usage
 fn main():
     p1 = Point(0, 0, 0)
     p2 = Point(1, 0, 0)

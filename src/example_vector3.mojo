@@ -1,9 +1,9 @@
 from geokernel import Vector3
 from math import pi
+from geokernel import Units
 
 
-# Example usage
-fn main():
+fn main() raises:
     v1 = Vector3(1, 0, 0)
     v2 = Vector3(0, 1, 0)
 
@@ -24,10 +24,9 @@ fn main():
 
     normalized = v1.normalize()
     print("v1 normalized:", repr(normalized))
+    angle_rad = v1.angle(v2)
 
-    angle = v1.angle(v2)
-    print("Degree angle between v1 and v2:", angle * 180 / pi)
+    var units = Units()
+    angle_deg = units.convert("rad", "deg", angle_rad)
 
-    print("reversed", repr(v1.reversed()))
-    print("reverse", repr(v1.reverse()))
-    print("reverse", repr(v1.reverse()))
+    print("Degree angle between v1 and v2:", angle_deg)

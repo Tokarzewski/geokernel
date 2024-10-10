@@ -1,7 +1,6 @@
 from geokernel import Vector3, Matrix3
 
 
-# Example usage
 fn main():
     # matrix1 = Matrix3.identity()
     # print(matrix1.determinant())
