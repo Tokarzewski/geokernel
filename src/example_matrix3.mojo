@@ -2,9 +2,6 @@ from geokernel import Vector3, Matrix3
 
 
 fn main():
-    # matrix1 = Matrix3.identity()
-    # print(matrix1.determinant())
-
     v1 = Vector3(1, 3, 3)
     v2 = Vector3(1, 3, 3)
     v3 = Vector3(1, 3, 3)

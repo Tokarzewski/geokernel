@@ -10,6 +10,9 @@ struct Plane:
         self.point = point
         self.vector = vector.normalize()
 
+    fn __repr__(self) -> String:
+        return "Plane(point=" + repr(self.point) + ", vector=" + repr(self.vector) + ")"
+
     @staticmethod
     fn from_points(p1: Point, p2: Point, p3: Point) -> Self:
         """Create a plane from three non-collinear points."""
@@ -20,18 +23,10 @@ struct Plane:
 
     fn distance_to_point(self, point: Point) -> FType:
         """Calculate the signed distance from a point to the plane."""
-        var p2p_vec = Vector3.from_point(point) - Vector3.from_point(self.point)
-        return self.vector.dot(p2p_vec)
+        return self.vector.dot(Vector3.from_points(self.point, point))
 
     fn project_point(self, point: Point) -> Point:
         """Project a point onto the plane."""
-        var distance = self.distance_to_point(point)
-        var projection_vector = self.vector * distance
-        return Point(
-            point.x - projection_vector.x,
-            point.y - projection_vector.y,
-            point.z - projection_vector.z,
-        )
-
-    fn __repr__(self) -> String:
-        return "Plane(point=" + repr(self.point) + ", vector=" + repr(self.vector) + ")"
+        var singed_distance = self.distance_to_point(point)
+        var projection_vector = self.vector * singed_distance
+        return point - Vector3.to_point(projection_vector)

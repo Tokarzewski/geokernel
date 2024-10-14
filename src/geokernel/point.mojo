@@ -7,13 +7,11 @@ struct Point(Movable):
     var x: FType
     var y: FType
     var z: FType
-    # var uuid: String
 
     fn __init__(inout self, x: FType, y: FType, z: FType):
         self.x = x
         self.y = y
         self.z = z
-        # self.uuid = generate_uuid()
 
     fn __eq__(self, other: Point) -> Bool:
         return self.isclose(other, atol=1e-15, rtol=1e-15)
@@ -39,16 +37,23 @@ struct Point(Movable):
     fn __truediv__(self, scalar: FType) -> Self:
         return Self(self.x / scalar, self.y / scalar, self.z / scalar)
 
+    fn __lt__(self, other: Point) -> Bool:
+        return self.x < other.x and self.y < other.y and self.z < other.z
+
+    fn __le__(self, other: Point) -> Bool:
+        return self.x <= other.x and self.y <= other.y and self.z <= other.z
+
+    fn __gt__(self, other: Point) -> Bool:
+        return self.x > other.x and self.y > other.y and self.z > other.z
+
+    fn __ge__(self, other: Point) -> Bool:
+        return self.x >= other.x and self.y >= other.y and self.z >= other.z
+
     fn __repr__(self) -> String:
-        return (
-            "Point("
-            + str(self.x)
-            + ", "
-            + str(self.y)
-            + ", "
-            + str(self.z)
-            + ")"
-        )
+        return "Point(" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ")"
+
+    fn coordinates(self) -> (FType, FType, FType):
+        return (self.x, self.y, self.z)
 
     fn isclose(self, other: Point, atol: FType, rtol: FType) -> Bool:
         return (
@@ -71,3 +76,13 @@ struct Point(Movable):
 
     fn moved_by_vector(self, v: Vector3) -> Self:
         return self.moved(v.x, v.y, v.z)
+
+    @staticmethod
+    fn min(p1: Point, p2: Point) -> Point:
+        """New Point with the minimum coordinates of two points."""
+        return Point(min(p1.x, p2.x), min(p1.y, p2.y), min(p1.z, p2.z))
+
+    @staticmethod
+    fn max(p1: Point, p2: Point) -> Point:
+        """New Point with the maximum coordinates of two points."""
+        return Point(max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z))

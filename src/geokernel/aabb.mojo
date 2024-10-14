@@ -8,25 +8,28 @@ struct AABB:
     var p_min: Point
     var p_max: Point
 
+    fn __init__(inout self, p_min: Point, p_max: Point):
+        """Simple and efficient way to define AABB
+        if you can't define p_min and p_max correctly, use 2nd init method.
+        """
+        self.p_min = p_min
+        self.p_max = p_max
+
+    fn __init__(inout self, points: List[Point]):
+        self.p_min = points[0]
+        self.p_max = points[0]
+
+        for i in range(1, points.size):
+            self.p_min = Point.min(self.p_min, points[i])
+            self.p_max = Point.max(self.p_max, points[i])
+
     fn __repr__(self) -> String:
         return "AABB(" + repr(self.p_min) + ", " + repr(self.p_max) + ")"
 
     fn contains(self, point: Point) -> Bool:
-        return (
-            self.p_min.x <= point.x <= self.p_max.x
-            and self.p_min.y <= point.y <= self.p_max.y
-            and self.p_min.z <= point.z <= self.p_max.z
-        )
+        return self.p_min <= point <= self.p_max
 
     fn extend(inout self, point: Point) -> Self:
-        self.p_min = Point(
-            min(self.p_min.x, point.x),
-            min(self.p_min.y, point.y),
-            min(self.p_min.z, point.z),
-        )
-        self.p_max = Point(
-            max(self.p_max.x, point.x),
-            max(self.p_max.y, point.y),
-            max(self.p_max.z, point.z),
-        )
+        self.p_min = Point.min(self.p_min, point)
+        self.p_max = Point.max(self.p_max, point)
         return self

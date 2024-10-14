@@ -33,9 +33,6 @@ struct Line:
         return Self(self.p2, self.p1)
 
     fn is_parallel(self, other: Self, atol: FType = 1e-15) -> Bool:
-        """
-        Check if this line is parallel to another line.
-        """
         var dir1 = self.direction().normalize()
         var dir2 = other.direction().normalize()
         var cross_product = dir1.cross(dir2)

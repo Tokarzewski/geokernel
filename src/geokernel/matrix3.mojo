@@ -26,10 +26,7 @@ struct Matrix3:
 
     fn determinant(self) -> FType:
         return (
-            self.row0.x
-            * (self.row1.y * self.row2.z - self.row1.z * self.row2.y)
-            - self.row0.y
-            * (self.row1.x * self.row2.z - self.row1.z * self.row2.x)
-            + self.row0.z
-            * (self.row1.x * self.row2.y - self.row1.y * self.row2.x)
+            self.row0.x * (self.row1.y * self.row2.z - self.row1.z * self.row2.y)
+            - self.row0.y * (self.row1.x * self.row2.z - self.row1.z * self.row2.x)
+            + self.row0.z * (self.row1.x * self.row2.y - self.row1.y * self.row2.x)
         )

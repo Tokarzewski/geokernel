@@ -2,12 +2,12 @@ from geokernel import Point, Plane, Vector3
 
 
 fn main():
-    point = Point(0, 0, 0)
-    vector = Vector3(0, 0, 1)
-    plane = Plane(point, vector)
-    test_point = Point(1, 2, 3)
+    point0 = Point(0, 0, 0)
+    vector = Vector3(1, 0, 0)
+    plane = Plane(point0, vector)
+    test_point = Point(1, 2, 2)
 
-    print("Point:", repr(point))
+    print("Point:", repr(point0))
     print("Vector3:", repr(vector))
     print("Plane:", repr(plane))
     print("Test Point:", repr(test_point))

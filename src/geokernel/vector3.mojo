@@ -3,7 +3,7 @@ from math import sqrt, acos, pi
 
 
 @value
-struct Vector3(Representable):
+struct Vector3:
     var x: FType
     var y: FType
     var z: FType
@@ -16,6 +16,10 @@ struct Vector3(Representable):
     @staticmethod
     fn from_point(p: Point) -> Self:
         return Self(p.x, p.y, p.z)
+
+    @staticmethod
+    fn to_point(self) -> Point:
+        return Point(self.x, self.y, self.z)
 
     @staticmethod
     fn from_points(p1: Point, p2: Point) -> Self:
@@ -57,15 +61,7 @@ struct Vector3(Representable):
         return Self(self.x / scalar, self.y / scalar, self.z / scalar)
 
     fn __repr__(self) -> String:
-        return (
-            "Vector3("
-            + str(self.x)
-            + ", "
-            + str(self.y)
-            + ", "
-            + str(self.z)
-            + ")"
-        )
+        return "Vector3(" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ")"
 
     fn reverse(inout self) -> Self:
         self.x = -self.x
@@ -89,8 +85,7 @@ struct Vector3(Representable):
         return result
 
     fn cross(self, other: Self) -> Self:
-        """The cross product of two vectors is a vector perpendicular to both.
-        """
+        """The cross product of two vectors is a vector perpendicular to both."""
         return Self(
             self.y * other.z - self.z * other.y,
             self.z * other.x - self.x * other.z,

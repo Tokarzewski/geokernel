@@ -1,1 +1,0 @@
-alias FType = Float64

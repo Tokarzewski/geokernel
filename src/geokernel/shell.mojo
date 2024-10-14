@@ -9,10 +9,10 @@ struct Shell:
         self.faces = faces
 
     fn __repr__(self) -> String:
-        var result: String = "Shell("
+        var result: String = "Shell(\n"
         for i in range(self.faces.size):
             if i > 0:
-                result += ", "
+                result += ",\n"
             result += repr(self.faces[i])
         return result + ")"
 
