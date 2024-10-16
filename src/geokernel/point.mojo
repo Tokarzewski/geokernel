@@ -13,10 +13,16 @@ struct Point(Movable):
         self.y = y
         self.z = z
 
-    fn __eq__(self, other: Point) -> Bool:
+    fn __mul__(self, scalar: FType) -> Self:
+        return Self(self.x * scalar, self.y * scalar, self.z * scalar)
+
+    fn __truediv__(self, scalar: FType) -> Self:
+        return Self(self.x / scalar, self.y / scalar, self.z / scalar)
+
+    fn __eq__(self, other: Self) -> Bool:
         return self.isclose(other, atol=1e-15, rtol=1e-15)
 
-    fn __ne__(self, other: Point) -> Bool:
+    fn __ne__(self, other: Self) -> Bool:
         return not self.__eq__(other)
 
     fn __add__(self, other: Self) -> Self:
@@ -31,13 +37,7 @@ struct Point(Movable):
     fn __isub__(inout self, other: Self):
         self = self.__sub__(other)
 
-    fn __mul__(self, scalar: FType) -> Self:
-        return Self(self.x * scalar, self.y * scalar, self.z * scalar)
-
-    fn __truediv__(self, scalar: FType) -> Self:
-        return Self(self.x / scalar, self.y / scalar, self.z / scalar)
-
-    fn __lt__(self, other: Point) -> Bool:
+    fn __lt__(self, other: Self) -> Bool:
         return self.x < other.x and self.y < other.y and self.z < other.z
 
     fn __le__(self, other: Point) -> Bool:
@@ -62,20 +62,11 @@ struct Point(Movable):
             and math.isclose(self.z, other.z, atol=atol, rtol=rtol)
         )
 
-    fn move(inout self, dx: FType, dy: FType, dz: FType) -> Self:
-        self.x = self.x + dx
-        self.y = self.y + dy
-        self.z = self.z + dz
-        return self
-
-    fn moved(self, dx: FType, dy: FType, dz: FType) -> Self:
+    fn move(self, dx: FType, dy: FType, dz: FType) -> Self:
         return Self(self.x + dx, self.y + dy, self.z + dz)
 
-    fn move_by_vector(inout self, v: Vector3) -> Self:
+    fn move_by_vector(self, v: Vector3) -> Self:
         return self.move(v.x, v.y, v.z)
-
-    fn moved_by_vector(self, v: Vector3) -> Self:
-        return self.moved(v.x, v.y, v.z)
 
     @staticmethod
     fn min(p1: Point, p2: Point) -> Point:

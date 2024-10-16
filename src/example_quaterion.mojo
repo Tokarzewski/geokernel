@@ -72,7 +72,7 @@ fn main() raises:
     print("q2 as axis-angle: axis =", repr(axis), "angle =", angle)
     print(String("q2 as Euler angles (radians):"))
     print(String("roll, pitch, yaw = {}, {}, {}").format(roll, pitch, yaw))
-    print(String("q2 as Euler angles (degrees):"))
+    # print(String("q2 as Euler angles (degrees):"))
 
     print_separator()
 

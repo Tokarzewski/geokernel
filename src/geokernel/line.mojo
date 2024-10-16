@@ -38,22 +38,14 @@ struct Line:
         var cross_product = dir1.cross(dir2)
         return cross_product.length() < atol
 
-    fn move(inout self, dx: FType, dy: FType, dz: FType) -> Self:
-        _ = self.p1.move(dx, dy, dz)
-        _ = self.p2.move(dx, dy, dz)
-        return self
+    fn move(self, dx: FType, dy: FType, dz: FType) -> Self:
+        return Self(self.p1.move(dx, dy, dz), self.p2.move(dx, dy, dz))
 
-    fn move_by_vector(inout self, v: Vector3) -> Self:
+    fn move_by_vector(self, v: Vector3) -> Self:
         return self.move(v.x, v.y, v.z)
 
-    fn moved(self, dx: FType, dy: FType, dz: FType) -> Self:
-        return Self(self.p1.moved(dx, dy, dz), self.p2.moved(dx, dy, dz))
-
-    fn moved_by_vector(self, v: Vector3) -> Self:
-        return self.moved(v.x, v.y, v.z)
-
     fn extrude(self, v: Vector3) -> Face:
-        var line2 = self.moved_by_vector(v)
+        var line2 = self.move_by_vector(v)
 
         return Face(List[Point](self.p1, self.p2, line2.p2, line2.p1))
 

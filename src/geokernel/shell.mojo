@@ -22,7 +22,7 @@ struct Shell:
             area += self.faces[i].area()
         return area
 
-    # fn gaps(): #find gaps in the shell
+    # fn gaps(): #return list of gaps in the shell
 
     # fn cap(): #cap gaps
 

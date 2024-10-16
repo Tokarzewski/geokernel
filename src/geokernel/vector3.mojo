@@ -42,6 +42,20 @@ struct Vector3:
     fn unitZ() -> Self:
         return Self(0, 0, 1)
 
+    # Scalar dunder methods
+    fn __add__(self, scalar: FType) -> Self:
+        return Self(self.x + scalar, self.y + scalar, self.z + scalar)
+
+    fn __sub__(self, scalar: FType) -> Self:
+        return Self(self.x - scalar, self.y - scalar, self.z - scalar)
+
+    fn __mul__(self, scalar: FType) -> Self:
+        return Self(self.x * scalar, self.y * scalar, self.z * scalar)
+
+    fn __truediv__(self, scalar: FType) -> Self:
+        return Self(self.x / scalar, self.y / scalar, self.z / scalar)
+
+    # Vector dunder methods
     fn __add__(self, other: Self) -> Self:
         return Self(self.x + other.x, self.y + other.y, self.z + other.z)
 
@@ -54,29 +68,21 @@ struct Vector3:
     fn __isub__(inout self, other: Self):
         self = self.__sub__(other)
 
-    fn __mul__(self, scalar: FType) -> Self:
-        return Self(self.x * scalar, self.y * scalar, self.z * scalar)
-
-    fn __truediv__(self, scalar: FType) -> Self:
-        return Self(self.x / scalar, self.y / scalar, self.z / scalar)
-
     fn __repr__(self) -> String:
         return "Vector3(" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ")"
 
-    fn reverse(inout self) -> Self:
-        self.x = -self.x
-        self.y = -self.y
-        self.z = -self.z
-        return self
+    fn components(self) -> (FType, FType, FType):
+        return (self.x, self.y, self.z)
 
-    fn reversed(self) -> Self:
-        return self * -1
+    fn reverse(self) -> Self:
+        return Self(-self.x, -self.y, -self.z)
+
+    fn inverse(self) -> Self:
+        return Self(1 / self.x, 1 / self.y, 1 / self.z)
 
     fn dot(self, other: Self) -> FType:
         """
-        The dot product is a scalar value that is the sum of the products of
-        the corresponding entries of two vectors. It's the product of the
-        lengths of the two vectors and the cosine of the angle between them.
+        Sum of the products of corresponding components.
         """
         var result: FType = 0.0
         result += self.x * other.x

@@ -18,10 +18,7 @@ struct AABB:
     fn __init__(inout self, points: List[Point]):
         self.p_min = points[0]
         self.p_max = points[0]
-
-        for i in range(1, points.size):
-            self.p_min = Point.min(self.p_min, points[i])
-            self.p_max = Point.max(self.p_max, points[i])
+        self.extend(points)
 
     fn __repr__(self) -> String:
         return "AABB(" + repr(self.p_min) + ", " + repr(self.p_max) + ")"
@@ -29,7 +26,7 @@ struct AABB:
     fn contains(self, point: Point) -> Bool:
         return self.p_min <= point <= self.p_max
 
-    fn extend(inout self, point: Point) -> Self:
-        self.p_min = Point.min(self.p_min, point)
-        self.p_max = Point.max(self.p_max, point)
-        return self
+    fn extend(inout self, points: List[Point]):
+        for i in range(0, points.size):
+            self.p_min = Point.min(self.p_min, points[i])
+            self.p_max = Point.max(self.p_max, points[i])

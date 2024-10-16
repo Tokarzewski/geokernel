@@ -10,6 +10,7 @@ from .point import Point
 from .face import Face
 from .quaternion import Quaternion
 from .shell import Shell
+from .transform import Transform
 from .units import Units
 from .vector3 import Vector3
 from .vector4 import Vector4

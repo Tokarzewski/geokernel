@@ -21,5 +21,5 @@ fn main():
     p1 = Point(0, 0, 1)
     p2 = Point(1, 0, 0)
     p3 = Point(0, 1, 1)
-    plane_from_points = Plane.from_points(p1, p2, p3)
+    plane_from_points = Plane(p1, p2, p3)
     print("Plane from points:", repr(plane_from_points))

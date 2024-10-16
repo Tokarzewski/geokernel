@@ -4,69 +4,69 @@ from math import sin, cos, sqrt, acos, pi, atan2, asin
 
 @value
 struct Quaternion:
-    var w: FType
     var x: FType
     var y: FType
     var z: FType
+    var w: FType
 
-    fn __init__(inout self, w: FType, x: FType, y: FType, z: FType):
-        self.w = w
+    fn __init__(inout self, x: FType, y: FType, z: FType, w: FType):
         self.x = x
         self.y = y
         self.z = z
+        self.w = w
 
     fn __add__(self, other: Self) -> Self:
         return Self(
-            self.w + other.w,
             self.x + other.x,
             self.y + other.y,
             self.z + other.z,
+            self.w + other.w,
         )
 
     fn __sub__(self, other: Self) -> Self:
         return Self(
-            self.w - other.w,
             self.x - other.x,
             self.y - other.y,
             self.z - other.z,
+            self.w - other.w,
         )
 
     fn __mul__(self, scalar: FType) -> Self:
-        return Self(self.w * scalar, self.x * scalar, self.y * scalar, self.z * scalar)
+        return Self(self.x * scalar, self.y * scalar, self.z * scalar, self.w * scalar)
 
     fn __mul__(self, q: Self) -> Self:
         return Self(
-            self.w * q.w - self.x * q.x - self.y * q.y - self.z * q.z,
             self.w * q.x + self.x * q.w + self.y * q.z - self.z * q.y,
             self.w * q.y - self.x * q.z + self.y * q.w + self.z * q.x,
             self.w * q.z + self.x * q.y - self.y * q.x + self.z * q.w,
+            self.w * q.w - self.x * q.x - self.y * q.y - self.z * q.z,
         )
 
     fn __truediv__(self, scalar: FType) -> Self:
-        return Self(self.w / scalar, self.x / scalar, self.y / scalar, self.z / scalar)
+        return Self(self.x / scalar, self.y / scalar, self.z / scalar, self.w / scalar)
 
     fn __repr__(self) -> String:
         return (
             "Quaternion("
-            + str(self.w)
-            + ", "
             + str(self.x)
             + ", "
             + str(self.y)
             + ", "
             + str(self.z)
+            + ", "
+            + str(self.w)
             + ")"
         )
 
     @staticmethod
     fn identity() -> Self:
-        return Self(1, 0, 0, 0)
+        return Self(0, 0, 0, 1)
 
     @staticmethod
     fn from_axis_angle(axis: Vector3, angle: FType) -> Self:
         var half_angle = angle / 2
         var s = sin(half_angle)
-        return Self(cos(half_angle), axis.x * s, axis.y * s, axis.z * s).normalize()
+        return Self(axis.x * s, axis.y * s, axis.z * s, cos(half_angle)).normalize()
 
     @staticmethod
     fn from_euler_angles(roll: FType, pitch: FType, yaw: FType) -> Self:
@@ -78,14 +78,14 @@ struct Quaternion:
         var sr = sin(roll * 0.5)
 
         return Self(
-            cr * cp * cy + sr * sp * sy,
             sr * cp * cy - cr * sp * sy,
             cr * sp * cy + sr * cp * sy,
             cr * cp * sy - sr * sp * cy,
+            cr * cp * cy + sr * sp * sy,
         )
 
     fn dot(self, other: Self) -> FType:
-        return self.w * other.w + self.x * other.x + self.y * other.y + self.z * other.z
+        return self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
 
     fn length(self) -> FType:
         return sqrt(self.dot(self))
@@ -98,10 +98,10 @@ struct Quaternion:
             return self / len
 
     fn conjugate(self) -> Self:
-        return Self(self.w, -self.x, -self.y, -self.z)
+        return Self(-self.x, -self.y, -self.z, self.w)
 
     fn inverse(self) -> Self:
-        var norm_sq = self.w**2 + self.x**2 + self.y**2 + self.z**2
+        var norm_sq = self.x**2 + self.y**2 + self.z**2 + self.w**2
         return self.conjugate() / norm_sq
 
     fn to_axis_angle(self) -> Tuple[Vector3, FType]:
@@ -113,7 +113,7 @@ struct Quaternion:
         return (Vector3(q.x, q.y, q.z) / s, angle)
 
     fn rotate_vector(self, v: Vector3) -> Vector3:
-        var q_v = Self(0, v.x, v.y, v.z)
+        var q_v = Self(v.x, v.y, v.z, 0)
         var q_result = self * q_v * self.inverse()
         return Vector3(q_result.x, q_result.y, q_result.z)
 

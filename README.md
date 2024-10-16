@@ -4,7 +4,7 @@ computational geometry library in mojo
 
 # Roadmap
 ## new data structures (structs)
-matrix, bvh  
+bvh  
 
 ## algorithms  
 intersect for line-wire, face-face, cell-cell  

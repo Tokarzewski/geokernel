@@ -7,19 +7,20 @@ struct Plane:
     var vector: Vector3
 
     fn __init__(inout self, point: Point, vector: Vector3):
+        """Create a plane from point and vector."""
         self.point = point
         self.vector = vector.normalize()
 
-    fn __repr__(self) -> String:
-        return "Plane(point=" + repr(self.point) + ", vector=" + repr(self.vector) + ")"
-
-    @staticmethod
-    fn from_points(p1: Point, p2: Point, p3: Point) -> Self:
+    fn __init__(inout self, p1: Point, p2: Point, p3: Point):
         """Create a plane from three non-collinear points."""
         var v1 = Vector3.from_point(p2) - Vector3.from_point(p1)
         var v2 = Vector3.from_point(p3) - Vector3.from_point(p1)
         var normal = v1.cross(v2).normalize()
-        return Self(p1, normal)
+        self.point = p1
+        self.vector = normal
+
+    fn __repr__(self) -> String:
+        return "Plane(point=" + repr(self.point) + ", vector=" + repr(self.vector) + ")"
 
     fn distance_to_point(self, point: Point) -> FType:
         """Calculate the signed distance from a point to the plane."""

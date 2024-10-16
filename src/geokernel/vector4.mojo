@@ -60,14 +60,10 @@ struct Vector4(Representable):
         self = self.__sub__(other)
 
     fn __mul__(self, scalar: FType) -> Self:
-        return Self(
-            self.x * scalar, self.y * scalar, self.z * scalar, self.w * scalar
-        )
+        return Self(self.x * scalar, self.y * scalar, self.z * scalar, self.w * scalar)
 
     fn __truediv__(self, scalar: FType) -> Self:
-        return Self(
-            self.x / scalar, self.y / scalar, self.z / scalar, self.w / scalar
-        )
+        return Self(self.x / scalar, self.y / scalar, self.z / scalar, self.w / scalar)
 
     fn __repr__(self) -> String:
         return (
@@ -81,6 +77,9 @@ struct Vector4(Representable):
             + str(self.w)
             + ")"
         )
+
+    fn components(self) -> (FType, FType, FType, FType):
+        return (self.x, self.y, self.z, self.w)
 
     fn reverse(inout self) -> Self:
         self.x = -self.x

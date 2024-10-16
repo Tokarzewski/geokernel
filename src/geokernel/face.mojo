@@ -38,6 +38,15 @@ struct Face:
     fn wire(self) -> Wire:
         return Wire(self.points)
 
+    fn move(self, dx: FType, dy: FType, dz: FType) -> Self:
+        var moved_points = List[Point]()
+        for i in range(len(self.points)):
+            moved_points.append(self.points[i].move(dx, dy, dz))
+        return Self(moved_points)
+
+    fn move_by_vector(self, v: Vector3) -> Self:
+        return self.move(v.x, v.y, v.z)
+
     fn perimeter(self) -> FType:
         var total_length: FType = 0
         for i in range(self.num_edges()):
@@ -86,27 +95,10 @@ struct Face:
 
         return weighted_sum / total_area
 
-    fn move(inout self, dx: FType, dy: FType, dz: FType) -> Self:
-        for i in range(len(self.points)):
-            _ = self.points[i].move(dx, dy, dz)
-        return self
-
-    fn move_by_vector(inout self, v: Vector3) -> Self:
-        return self.move(v.x, v.y, v.z)
-
-    fn moved(self, dx: FType, dy: FType, dz: FType) -> Self:
-        var moved_points = List[Point]()
-        for i in range(len(self.points)):
-            moved_points.append(self.points[i].moved(dx, dy, dz))
-        return Self(moved_points)
-
-    fn moved_by_vector(self, v: Vector3) -> Self:
-        return self.moved(v.x, v.y, v.z)
-
     fn extrude(self, v: Vector3) -> Cell:
         var faces = List[Face]()
         faces.append(self)  # original polygon
-        faces.append(self.moved_by_vector(v))  # moved polygon
+        faces.append(self.move_by_vector(v))  # moved polygon
         faces.extend(self.wire().extrude(v).faces)  # sides
         return Cell(faces)
 

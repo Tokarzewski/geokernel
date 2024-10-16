@@ -25,7 +25,7 @@ fn main():
     print("Line3:", repr(line3))
     print("Is line1 parallel to line3:", line1.is_parallel(line3))
 
-    print("Moved line3", repr(line3.moved(0, 0, 1)))
+    print("Moved line3", repr(line3.move(0, 0, 1)))
 
     direction = Vector3(0, 0, 5)
     extruded_line = line1.extrude(direction)

@@ -17,9 +17,5 @@ def test_isclose2():
 
 def test_move():
     p4 = Point(0, 1, 2)
-    assert_true(p4 == p4.move(0, -1, -2))
-
-
-def test_moved():
-    p4 = Point(0, 1, 2)
-    assert_false(p4 == p4.moved(0, -1, -2))
+    p5 = Point(1, 1, 1)
+    assert_true(p5 == p4.move(1, 0, -1))
