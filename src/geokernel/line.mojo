@@ -14,8 +14,7 @@ struct Line:
         return Vector3.from_point(self.p2 - self.p1)
 
     fn length(self) -> FType:
-        var direction = self.direction()
-        return sqrt(direction.dot(direction))
+        return self.direction().length()
 
     fn point_at(self, t: FType) -> Point:
         return self.p1 + (self.p2 - self.p1) * t
