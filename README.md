@@ -6,7 +6,7 @@ This project aims to provide efficient and robust geometric structures and algor
 
 # core principles
 **maximizing learning:** geokernel serves as an educational resource, with clearly defined components and algorithms.  
-**extensive functionality:** comprehensive geometric operations and data structures to support a wide range of 3D development needs.  
+**extensive functionality:** geometric operations and data structures to support a wide range of 3D development needs.  
 **emphasis on readability:** prioritizes clear, understandable code, making it accessible to beginners.  
 
 # key components
