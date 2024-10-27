@@ -20,10 +20,7 @@ struct Wire:
         return self.points.size
 
     fn num_segments(self) -> Int:
-        if self.is_closed():
-            return self.points.size - 1
-        else:
-            return self.points.size
+        return self.points.size - 1
 
     fn get_point(self, i: Int) -> Point:
         return self.points[i]
@@ -31,7 +28,16 @@ struct Wire:
     fn get_segment(self, i: Int) -> Line:
         return Line(self.points[i], self.points[i + 1])
 
-    fn reverse(owned self) -> Self:
+    fn startpoint(self) -> Point:
+        return self.points[0]
+
+    fn endpoint(self) -> Point:
+        return self.points[-1]
+
+    fn is_closed(self) -> Bool:
+        return self.startpoint() == self.endpoint()
+
+    fn reverse(inout self) -> Self:
         self.points.reverse()
         return self
 
@@ -41,15 +47,11 @@ struct Wire:
             total_length += self.get_segment(i).length()
         return total_length
 
-    fn is_closed(self) -> Bool:
-        if self.points.size < 3:
-            return False
-        return self.points[0] == self.points[self.points.size - 1]
-
     fn move(self, dx: FType, dy: FType, dz: FType) -> Self:
         var moved_points = List[Point]()
         for i in range(len(self.points)):
-            moved_points.append(self.points[i].move(dx, dy, dz))
+            var moved_point = self.points[i].move(dx, dy, dz)
+            moved_points.append(moved_point)
         return Self(moved_points)
 
     fn move_by_vector(self, v: Vector3) -> Self:

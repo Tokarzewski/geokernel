@@ -67,7 +67,7 @@ struct Vector4(Representable):
 
     fn __repr__(self) -> String:
         return (
-            "Vector3("
+            "Vector4("
             + str(self.x)
             + ", "
             + str(self.y)
@@ -81,12 +81,11 @@ struct Vector4(Representable):
     fn components(self) -> (FType, FType, FType, FType):
         return (self.x, self.y, self.z, self.w)
 
-    fn reverse(inout self) -> Self:
-        self.x = -self.x
-        self.y = -self.y
-        self.z = -self.z
-        self.w = -self.w
-        return self
+    fn reverse(self) -> Self:
+        return Self(-self.x, -self.y, -self.z, -self.w)
+
+    fn inverse(self) -> Self:
+        return Self(1 / self.x, 1 / self.y, 1 / self.z, 1 / self.w)
 
     fn dot(self, other: Self) -> FType:
         """
@@ -110,8 +109,4 @@ struct Vector4(Representable):
 
     fn lerp(self, other: Self, t: FType) -> Self:
         """Create a new vector that is a linear blend of two vectors."""
-        var x = self.x + t * (other.x - self.x)
-        var y = self.y + t * (other.y - self.y)
-        var z = self.z + t * (other.z - self.z)
-        var w = self.w + t * (other.w - self.w)
-        return Self(x, y, z, w)
+        return self + (other - self) * t
