@@ -67,8 +67,9 @@ struct Shell(Copyable, Movable, ImplicitlyCopyable):
         return len(open) > 0
 
     fn slice(self, p: Plane) -> Tuple[Shell, Shell]:
-        """Slice shell by plane; faces on positive side go to first shell, negative to second.
-        Faces straddling the plane are assigned by centroid side (stub for complex cases)."""
+        """Slice shell by plane.
+        Faces whose centroid is on the positive side go to the first shell, negative to second.
+        Faces straddling the plane are not split (stub for complex cases)."""
         var above = List[Face]()
         var below = List[Face]()
         for i in range(len(self.faces)):
