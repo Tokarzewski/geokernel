@@ -41,8 +41,15 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
     fn endpoint(self) -> Point:
         return self.points[-1]
 
-    fn is_closed(self) -> Bool:
-        return self.startpoint() == self.endpoint()
+    fn is_closed(self, atol: FType = 1e-10) -> Bool:
+        """True if the first and last points are within atol of each other."""
+        var s = self.startpoint()
+        var e = self.endpoint()
+        var dx = s.x - e.x
+        var dy = s.y - e.y
+        var dz = s.z - e.z
+        from math import sqrt
+        return sqrt(dx * dx + dy * dy + dz * dz) <= atol
 
     fn reverse(mut self) -> Self:
         self.points.reverse()
@@ -160,6 +167,14 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
 
     fn remove_collinear_edges(self) -> Wire:
         """Merge consecutive collinear segments by removing intermediate points."""
+        return self.remove_collinear_points()
+
+    fn remove_collinear_points(self, atol: FType = 1e-10) -> Wire:
+        """Remove intermediate collinear points, keeping only direction changes.
+
+        A point is collinear if the cross product of the two adjacent edge
+        vectors has length <= atol (i.e. the three points are co-linear).
+        """
         var n = len(self.points)
         if n < 3:
             return self
@@ -177,7 +192,7 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
                 self.points[i + 1].z - self.points[i].z,
             )
             var cross = v1.cross(v2)
-            if cross.length() > 1e-10:
+            if cross.length() > atol:
                 result.append(self.points[i])
         result.append(self.points[n - 1])
         return Wire(result)
