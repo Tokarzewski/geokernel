@@ -208,6 +208,25 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
             faces.append(sides.faces[i])
         return Shell(faces)
 
+    fn intersects_line(self, l: Line) -> Bool:
+        """True if the line segment intersects this face."""
+        return self.intersect_line(l) is not None
+
+    fn intersect_line(self, l: Line) -> Optional[Point]:
+        """Intersection point of a line segment with this face plane, or None."""
+        var n = self.normal()
+        var denom = n.dot(l.direction())
+        if abs(denom) < 1e-12:
+            return None  # parallel
+        var d = Vector3.from_points(l.p1, self.points[0])
+        var t = n.dot(d) / denom
+        if t < 0.0 or t > 1.0:
+            return None  # outside segment range
+        var hit = l.point_at(t)
+        if self.contains_point_2d(hit):
+            return hit
+        return None
+
     fn extrude(self, v: Vector3) -> Cell:
         var faces = List[Face]()
         faces.append(self)  # original polygon

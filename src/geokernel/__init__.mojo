@@ -24,3 +24,4 @@ from .curve import Curve
 from .circle import Circle
 from .nurbs_curve import NurbsCurve
 from .boolean import clip_polygon, intersect_faces, union_faces, difference_faces, union_cells, intersect_cells, difference_cells, slice_cell
+from .primitives import box_faces, sphere_faces, cylinder_faces, cone_faces

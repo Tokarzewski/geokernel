@@ -1,4 +1,4 @@
-from geokernel import FType, Point, Face, Cell, Plane, Vector3
+from geokernel import FType, Point, Face, Cell, Plane, Vector3, Wire
 
 
 struct Shell(Copyable, Movable, ImplicitlyCopyable):
@@ -81,6 +81,46 @@ struct Shell(Copyable, Movable, ImplicitlyCopyable):
             else:
                 below.append(face)
         return (Shell(above), Shell(below))
+
+    fn boundary_wires(self) -> List[Wire]:
+        """Assemble open edges into closed (or open) wires."""
+        var open = self.open_edges()
+        if len(open) == 0:
+            return List[Wire]()
+
+        # Build adjacency: each edge is (p1, p2)
+        # Greedily chain edges into wires
+        var used = List[Bool]()
+        for _ in range(len(open)):
+            used.append(False)
+
+        var wires = List[Wire]()
+        for start in range(len(open)):
+            if used[start]:
+                continue
+            var chain = List[Point]()
+            chain.append(open[start][0])
+            chain.append(open[start][1])
+            used[start] = True
+            var extended = True
+            while extended:
+                extended = False
+                var tail = chain[len(chain) - 1]
+                for k in range(len(open)):
+                    if used[k]:
+                        continue
+                    if open[k][0] == tail:
+                        chain.append(open[k][1])
+                        used[k] = True
+                        extended = True
+                        break
+                    elif open[k][1] == tail:
+                        chain.append(open[k][0])
+                        used[k] = True
+                        extended = True
+                        break
+            wires.append(Wire(chain))
+        return wires^
 
     # fn cap(): #cap gaps
 
