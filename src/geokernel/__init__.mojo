@@ -27,3 +27,4 @@ from .boolean import clip_polygon, intersect_faces, union_faces, difference_face
 from .primitives import box_faces, sphere_faces, cylinder_faces, cone_faces
 from .obj import shell_to_obj, faces_to_obj
 from .stl import shell_to_stl_ascii
+from .intersection import line_face_intersection, point_in_solid_ray_cast
