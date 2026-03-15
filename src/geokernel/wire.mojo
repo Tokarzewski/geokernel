@@ -70,6 +70,25 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
             transformed_points.append(self.points[i].transform(t))
         return Self(transformed_points)
 
+    fn intersects_line(self, l: Line) -> Bool:
+        """Return True if the wire intersects the given line segment."""
+        for i in range(self.num_segments()):
+            var seg = self.get_segment(i)
+            var result = seg.intersects(l)
+            if result[0]:
+                return True
+        return False
+
+    fn intersect_line(self, l: Line) -> List[Point]:
+        """Return all intersection points between the wire segments and the line."""
+        var result = List[Point]()
+        for i in range(self.num_segments()):
+            var seg = self.get_segment(i)
+            var intersection = seg.intersects(l)
+            if intersection[0]:
+                result.append(intersection[1])
+        return result^
+
     fn extrude(self, v: Vector3) -> Shell:
         var faces = List[Face]()
         for i in range(self.num_segments()):
