@@ -1,4 +1,4 @@
-from geokernel import FType, Point, Line, Wire, Vector3, Cell
+from geokernel import FType, Point, Line, Wire, Vector3, Cell, Transform
 from math import sqrt
 
 
@@ -52,6 +52,13 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
 
     fn move_by_vector(self, v: Vector3) -> Self:
         return self.move(v.x, v.y, v.z)
+
+    fn transform(self, t: Transform) -> Self:
+        """Apply a Transform to all points of the face."""
+        var transformed_points = List[Point]()
+        for i in range(len(self.points)):
+            transformed_points.append(self.points[i].transform(t))
+        return Self(transformed_points)
 
     fn perimeter(self) -> FType:
         var total_length: FType = 0

@@ -1,4 +1,4 @@
-from geokernel import FType, Vector3
+from geokernel import FType, Vector3, Transform
 import math
 
 
@@ -77,6 +77,15 @@ struct Point(Copyable, Movable, ImplicitlyCopyable):
 
     fn move_by_vector(self, v: Vector3) -> Self:
         return self.move(v.x, v.y, v.z)
+
+    fn transform(self, t: Transform) -> Self:
+        """Apply a Transform (scale → rotate → translate) to this point."""
+        # Scale
+        var scaled = Self(self.x * t.scale.x, self.y * t.scale.y, self.z * t.scale.z)
+        # Rotate
+        var v = t.rotation.rotate_vector(Vector3.from_point(scaled))
+        # Translate
+        return Self(v.x + t.movement.x, v.y + t.movement.y, v.z + t.movement.z)
 
     @staticmethod
     fn min(p1: Point, p2: Point) -> Point:

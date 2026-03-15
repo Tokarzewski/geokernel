@@ -1,4 +1,4 @@
-from geokernel import FType, Point, Line, Vector3
+from geokernel import FType, Point, Line, Vector3, Transform
 
 
 struct Wire(Copyable, Movable, ImplicitlyCopyable):
@@ -62,6 +62,13 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
 
     fn move_by_vector(self, v: Vector3) -> Self:
         return self.move(v.x, v.y, v.z)
+
+    fn transform(self, t: Transform) -> Self:
+        """Apply a Transform to all points of the wire."""
+        var transformed_points = List[Point]()
+        for i in range(len(self.points)):
+            transformed_points.append(self.points[i].transform(t))
+        return Self(transformed_points)
 
     fn extrude(self, v: Vector3) -> Shell:
         var faces = List[Face]()
