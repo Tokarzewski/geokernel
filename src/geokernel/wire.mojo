@@ -1,4 +1,5 @@
-from geokernel import FType, Point, Line, Vector3, Transform, Quaternion, Shell, Face
+from geokernel import FType, Point, Line, Vector3, Transform, Quaternion, Shell, Face, AABB
+from math import sqrt
 
 
 struct Wire(Copyable, Movable, ImplicitlyCopyable):
@@ -116,3 +117,67 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
             var face = self.get_segment(i).extrude(v)
             faces.append(face)
         return Shell(faces)
+
+    fn is_planar(self, atol: FType = 1e-10) -> Bool:
+        """True if all points are coplanar (consistent normal across consecutive triples)."""
+        var n = len(self.points)
+        if n < 3:
+            return True
+        # Find first valid normal
+        var ref_normal = Vector3(0.0, 0.0, 0.0)
+        for i in range(n - 2):
+            var v1 = Vector3(
+                self.points[i + 1].x - self.points[i].x,
+                self.points[i + 1].y - self.points[i].y,
+                self.points[i + 1].z - self.points[i].z,
+            )
+            var v2 = Vector3(
+                self.points[i + 2].x - self.points[i].x,
+                self.points[i + 2].y - self.points[i].y,
+                self.points[i + 2].z - self.points[i].z,
+            )
+            var candidate = v1.cross(v2)
+            if candidate.length() > atol:
+                ref_normal = candidate.normalize()
+                break
+        if ref_normal.length() < atol:
+            return True  # all collinear — trivially planar
+        # Check all points against the plane defined by points[0] + ref_normal
+        var origin = self.points[0]
+        for i in range(1, n):
+            var d = Vector3(
+                self.points[i].x - origin.x,
+                self.points[i].y - origin.y,
+                self.points[i].z - origin.z,
+            )
+            if abs(ref_normal.dot(d)) > atol:
+                return False
+        return True
+
+    fn bounding_box(self) -> AABB:
+        """Axis-aligned bounding box of all wire points."""
+        return AABB(self.points)
+
+    fn remove_collinear_edges(self) -> Wire:
+        """Merge consecutive collinear segments by removing intermediate points."""
+        var n = len(self.points)
+        if n < 3:
+            return self
+        var result = List[Point]()
+        result.append(self.points[0])
+        for i in range(1, n - 1):
+            var v1 = Vector3(
+                self.points[i].x - self.points[i - 1].x,
+                self.points[i].y - self.points[i - 1].y,
+                self.points[i].z - self.points[i - 1].z,
+            )
+            var v2 = Vector3(
+                self.points[i + 1].x - self.points[i].x,
+                self.points[i + 1].y - self.points[i].y,
+                self.points[i + 1].z - self.points[i].z,
+            )
+            var cross = v1.cross(v2)
+            if cross.length() > 1e-10:
+                result.append(self.points[i])
+        result.append(self.points[n - 1])
+        return Wire(result)

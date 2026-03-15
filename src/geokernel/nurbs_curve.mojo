@@ -183,6 +183,57 @@ struct NurbsCurve(Copyable, Movable, ImplicitlyCopyable):
         var dz = p_end.z - p_start.z
         return sqrt(dx * dx + dy * dy + dz * dz) < 1e-10
 
+    fn project_point(self, p: Point) -> Point:
+        """Find the closest point on the curve to p by sampling + refinement."""
+        var n = self.num_control_points()
+        if n == 0:
+            return Point(0.0, 0.0, 0.0)
+        var t_min: FType = 0.0
+        var t_max: FType = 1.0
+        if len(self.knots) > 0:
+            t_min = self.knots[self.degree]
+            t_max = self.knots[n]
+        var samples = 64
+        var best_t = t_min
+        var best_dist_sq: FType = 1e38
+        for i in range(samples + 1):
+            var t = t_min + (t_max - t_min) * FType(i) / FType(samples)
+            var q = self.point_at(t)
+            var dx = q.x - p.x
+            var dy = q.y - p.y
+            var dz = q.z - p.z
+            var d2 = dx * dx + dy * dy + dz * dz
+            if d2 < best_dist_sq:
+                best_dist_sq = d2
+                best_t = t
+        # Refine with golden-section-like bisection over a small interval
+        var lo = best_t - (t_max - t_min) / FType(samples)
+        var hi = best_t + (t_max - t_min) / FType(samples)
+        if lo < t_min:
+            lo = t_min
+        if hi > t_max:
+            hi = t_max
+        for _ in range(32):
+            var m1 = lo + (hi - lo) / 3.0
+            var m2 = hi - (hi - lo) / 3.0
+            var q1 = self.point_at(m1)
+            var q2 = self.point_at(m2)
+            var d1 = (q1.x - p.x) ** 2 + (q1.y - p.y) ** 2 + (q1.z - p.z) ** 2
+            var d2 = (q2.x - p.x) ** 2 + (q2.y - p.y) ** 2 + (q2.z - p.z) ** 2
+            if d1 < d2:
+                hi = m2
+            else:
+                lo = m1
+        return self.point_at((lo + hi) / 2.0)
+
+    fn distance_to_point(self, p: Point) -> FType:
+        """Distance from p to the closest point on the curve."""
+        var closest = self.project_point(p)
+        var dx = closest.x - p.x
+        var dy = closest.y - p.y
+        var dz = closest.z - p.z
+        return sqrt(dx * dx + dy * dy + dz * dz)
+
     fn __repr__(self) -> String:
         return (
             "NurbsCurve(degree="

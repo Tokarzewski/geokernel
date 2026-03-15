@@ -82,6 +82,36 @@ struct Circle(Copyable, Movable, ImplicitlyCopyable):
         var radial_dist = in_plane.length()
         return abs(radial_dist - self.radius) < atol
 
+    fn project_point(self, p: Point) -> Point:
+        """Closest point on the circle to p."""
+        var n = self.normal.normalize()
+        # Project p onto circle plane
+        var cp = Vector3(p.x - self.center.x, p.y - self.center.y, p.z - self.center.z)
+        var dist_n = cp.dot(n)
+        var in_plane = Vector3(
+            cp.x - dist_n * n.x,
+            cp.y - dist_n * n.y,
+            cp.z - dist_n * n.z,
+        )
+        var r = in_plane.length()
+        if r < 1e-14:
+            # p projects onto center — pick arbitrary point on circle
+            return self.point_at(0.0)
+        var scale = self.radius / r
+        return Point(
+            self.center.x + in_plane.x * scale,
+            self.center.y + in_plane.y * scale,
+            self.center.z + in_plane.z * scale,
+        )
+
+    fn distance_to_point(self, p: Point) -> FType:
+        """Distance from p to the closest point on the circle."""
+        var closest = self.project_point(p)
+        var dx = closest.x - p.x
+        var dy = closest.y - p.y
+        var dz = closest.z - p.z
+        return sqrt(dx * dx + dy * dy + dz * dz)
+
     fn __repr__(self) -> String:
         return (
             "Circle(center="

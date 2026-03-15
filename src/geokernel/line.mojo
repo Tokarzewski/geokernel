@@ -33,11 +33,20 @@ struct Line(Copyable, Movable, ImplicitlyCopyable):
     fn startpoint(self) -> Point:
         return self.p1
 
+    fn start_point(self) -> Point:
+        return self.p1
+
     fn midpoint(self) -> Point:
         return self.point_at(t=0.5)
 
     fn endpoint(self) -> Point:
         return self.p2
+
+    fn end_point(self) -> Point:
+        return self.p2
+
+    fn is_closed(self) -> Bool:
+        return self.p1 == self.p2
 
     fn reverse(self) -> Self:
         return Self(self.p2, self.p1)
@@ -57,6 +66,42 @@ struct Line(Copyable, Movable, ImplicitlyCopyable):
     fn extrude(self, v: Vector3) -> Face:
         var line2 = self.move_by_vector(v)
         return Face([self.p1, self.p2, line2.p2, line2.p1])
+
+    fn isclose(self, other: Line, tol: Float64 = 1e-9) -> Bool:
+        return self.p1.isclose(other.p1, tol) and self.p2.isclose(other.p2, tol)
+
+    fn distance_to_point(self, p: Point) -> FType:
+        var d = self.direction()
+        var len_sq = d.x * d.x + d.y * d.y + d.z * d.z
+        if len_sq == 0.0:
+            var dx = p.x - self.p1.x
+            var dy = p.y - self.p1.y
+            var dz = p.z - self.p1.z
+            return (dx * dx + dy * dy + dz * dz) ** 0.5
+        var w = Vector3(p.x - self.p1.x, p.y - self.p1.y, p.z - self.p1.z)
+        var t = w.dot(d) / len_sq
+        if t < 0.0:
+            t = 0.0
+        elif t > 1.0:
+            t = 1.0
+        var closest = self.point_at(t)
+        var ex = p.x - closest.x
+        var ey = p.y - closest.y
+        var ez = p.z - closest.z
+        return (ex * ex + ey * ey + ez * ez) ** 0.5
+
+    fn project_point(self, p: Point) -> Point:
+        var d = self.direction()
+        var len_sq = d.x * d.x + d.y * d.y + d.z * d.z
+        if len_sq == 0.0:
+            return self.p1
+        var w = Vector3(p.x - self.p1.x, p.y - self.p1.y, p.z - self.p1.z)
+        var t = w.dot(d) / len_sq
+        if t < 0.0:
+            t = 0.0
+        elif t > 1.0:
+            t = 1.0
+        return self.point_at(t)
 
     fn intersects(self, other: Self, atol: FType = 1e-15) -> Tuple[Bool, Point]:
         """

@@ -72,6 +72,12 @@ struct Point(Copyable, Movable, ImplicitlyCopyable):
             and math.isclose(self.z, other.z, atol=atol, rtol=rtol)
         )
 
+    fn isclose(self, other: Point, tol: Float64 = 1e-9) -> Bool:
+        var dx = self.x - other.x
+        var dy = self.y - other.y
+        var dz = self.z - other.z
+        return math.sqrt(dx * dx + dy * dy + dz * dz) <= tol
+
     fn move(self, dx: FType, dy: FType, dz: FType) -> Self:
         return Self(self.x + dx, self.y + dy, self.z + dz)
 
