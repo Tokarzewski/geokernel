@@ -1,11 +1,11 @@
-from geokernel import FType, Point, Face, Cell
+from geokernel import FType, Point, Face, Cell, Plane, Vector3
 
 
 struct Shell(Copyable, Movable, ImplicitlyCopyable):
     var faces: List[Face]
 
     fn __init__(out self, faces: List[Face]):
-        self.faces = faces
+        self.faces = faces.copy()
 
 
     fn __copyinit__(out self, copy: Self):
@@ -28,7 +28,58 @@ struct Shell(Copyable, Movable, ImplicitlyCopyable):
             area += self.faces[i].area()
         return area
 
-    # fn gaps(): #return list of gaps in the shell
+    fn open_edges(self) -> List[Tuple[Point, Point]]:
+        """Return edges not shared by exactly 2 faces."""
+        var edge_count = List[Tuple[Point, Point]]()
+        var edge_counts_val = List[Int]()
+
+        for fi in range(len(self.faces)):
+            var face = self.faces[fi]
+            var n = face.num_edges()
+            for ei in range(n):
+                var edge = face.get_edge(ei)
+                var p1 = edge.p1
+                var p2 = edge.p2
+                # Check if this edge (or its reverse) is already tracked
+                var found = False
+                for k in range(len(edge_count)):
+                    var ep1 = edge_count[k][0]
+                    var ep2 = edge_count[k][1]
+                    var forward = (ep1 == p1) and (ep2 == p2)
+                    var reverse = (ep1 == p2) and (ep2 == p1)
+                    if forward or reverse:
+                        edge_counts_val[k] = edge_counts_val[k] + 1
+                        found = True
+                        break
+                if not found:
+                    edge_count.append((p1, p2))
+                    edge_counts_val.append(1)
+
+        var result = List[Tuple[Point, Point]]()
+        for k in range(len(edge_count)):
+            if edge_counts_val[k] != 2:
+                result.append(edge_count[k])
+        return result^
+
+    fn has_holes(self) -> Bool:
+        """True if any edge is not shared by exactly 2 faces."""
+        var open = self.open_edges()
+        return len(open) > 0
+
+    fn slice(self, p: Plane) -> Tuple[Shell, Shell]:
+        """Slice shell by plane; faces on positive side go to first shell, negative to second.
+        Faces straddling the plane are assigned by centroid side (stub for complex cases)."""
+        var above = List[Face]()
+        var below = List[Face]()
+        for i in range(len(self.faces)):
+            var face = self.faces[i]
+            var c = face.centroid()
+            var dist = p.distance_to_point(c)
+            if dist >= 0:
+                above.append(face)
+            else:
+                below.append(face)
+        return (Shell(above), Shell(below))
 
     # fn cap(): #cap gaps
 
