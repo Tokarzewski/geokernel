@@ -23,3 +23,4 @@ from .wire import Wire
 from .curve import Curve
 from .circle import Circle
 from .nurbs_curve import NurbsCurve
+from .boolean import clip_polygon, intersect_faces, union_faces, difference_faces, union_cells, intersect_cells, difference_cells, slice_cell

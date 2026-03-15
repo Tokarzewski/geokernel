@@ -5,7 +5,7 @@ struct Cell(Copyable, Movable, ImplicitlyCopyable):
     var faces: List[Face]
 
     fn __init__(out self, faces: List[Face]):
-        self.faces = faces
+        self.faces = faces.copy()
 
 
     fn __copyinit__(out self, copy: Self):
