@@ -1,4 +1,4 @@
-from geokernel import FType, Point
+from geokernel import FType, Point, Face
 
 
 struct Triangulation:
@@ -32,3 +32,18 @@ struct Triangulation:
             tri.append(points[i + 1])
             result.append(tri.copy())
         return result.copy()
+
+    @staticmethod
+    fn triangulate_face(face: Face) -> List[Face]:
+        """Fan triangulation from first vertex. Returns list of triangle Faces."""
+        var result = List[Face]()
+        var n = face.num_vertices()
+        if n < 3:
+            return result^
+        for i in range(1, n - 1):
+            var tri_pts = List[Point]()
+            tri_pts.append(face.get_vertex(0))
+            tri_pts.append(face.get_vertex(i))
+            tri_pts.append(face.get_vertex(i + 1))
+            result.append(Face(tri_pts))
+        return result^
