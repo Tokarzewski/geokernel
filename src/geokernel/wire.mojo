@@ -1,11 +1,11 @@
-from geokernel import FType, Point, Line, Vector3, Transform
+from geokernel import FType, Point, Line, Vector3, Transform, Quaternion, Shell, Face
 
 
 struct Wire(Copyable, Movable, ImplicitlyCopyable):
     var points: List[Point]
 
     fn __init__(out self, points: List[Point]):
-        self.points = points
+        self.points = points.copy()
 
 
     fn __copyinit__(out self, copy: Self):
@@ -16,17 +16,17 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
 
     fn __repr__(self) -> String:
         var result: String = "Wire("
-        for i in range(self.points.size):
+        for i in range(len(self.points)):
             if i > 0:
                 result += ", "
             result += self.points[i].__repr__()
         return result + ")"
 
     fn num_points(self) -> Int:
-        return self.points.size
+        return len(self.points)
 
     fn num_segments(self) -> Int:
-        return self.points.size - 1
+        return len(self.points) - 1
 
     fn get_point(self, i: Int) -> Point:
         return self.points[i]
@@ -88,6 +88,27 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
             if intersection[0]:
                 result.append(intersection[1])
         return result^
+
+    fn rotate(self, q: Quaternion) -> Self:
+        var rotated = List[Point]()
+        for i in range(len(self.points)):
+            rotated.append(self.points[i].rotate(q))
+        return Self(rotated)
+
+    fn sweep(self, path: Line) -> Shell:
+        var direction = path.direction()
+        var moved = self.move_by_vector(direction)
+        var faces = List[Face]()
+        for i in range(self.num_segments()):
+            var seg_start = self.get_segment(i)
+            var seg_end = moved.get_segment(i)
+            var face_pts = List[Point]()
+            face_pts.append(seg_start.p1)
+            face_pts.append(seg_start.p2)
+            face_pts.append(seg_end.p2)
+            face_pts.append(seg_end.p1)
+            faces.append(Face(face_pts))
+        return Shell(faces)
 
     fn extrude(self, v: Vector3) -> Shell:
         var faces = List[Face]()

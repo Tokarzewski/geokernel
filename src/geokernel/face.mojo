@@ -1,4 +1,4 @@
-from geokernel import FType, Point, Line, Wire, Vector3, Cell, Transform
+from geokernel import FType, Point, Line, Wire, Vector3, Cell, Transform, Quaternion
 from math import sqrt
 
 
@@ -59,6 +59,12 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
         for i in range(len(self.points)):
             transformed_points.append(self.points[i].transform(t))
         return Self(transformed_points)
+
+    fn rotate(self, q: Quaternion) -> Self:
+        var rotated = List[Point]()
+        for i in range(len(self.points)):
+            rotated.append(self.points[i].rotate(q))
+        return Self(rotated)
 
     fn perimeter(self) -> FType:
         var total_length: FType = 0

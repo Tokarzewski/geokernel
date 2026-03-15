@@ -1,4 +1,4 @@
-from geokernel import FType, Vector3, Transform
+from geokernel import FType, Vector3, Transform, Quaternion
 import math
 
 
@@ -86,6 +86,10 @@ struct Point(Copyable, Movable, ImplicitlyCopyable):
         var v = t.rotation.rotate_vector(Vector3.from_point(scaled))
         # Translate
         return Self(v.x + t.movement.x, v.y + t.movement.y, v.z + t.movement.z)
+
+    fn rotate(self, q: Quaternion) -> Self:
+        var v = q.rotate_vector(Vector3(self.x, self.y, self.z))
+        return Self(v.x, v.y, v.z)
 
     @staticmethod
     fn min(p1: Point, p2: Point) -> Point:
