@@ -1,0 +1,12 @@
+[workspace]
+authors = ["tokarzewski <bartlomiej.tokarzewski@gmail.com>"]
+channels = ["https://conda.modular.com/max-nightly", "conda-forge"]
+description = "Computational geometry library in pure Mojo"
+name = "geokernel"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+mojo = ">=0.26.3.0.dev2026031505,<0.27"

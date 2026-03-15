@@ -1,19 +1,25 @@
 from geokernel import FType, Point, Face, Cell
 
 
-@value
-struct Shell:
+struct Shell(Copyable, Movable, ImplicitlyCopyable):
     var faces: List[Face]
 
-    fn __init__(inout self, faces: List[Face]):
+    fn __init__(out self, faces: List[Face]):
         self.faces = faces
+
+
+    fn __copyinit__(out self, copy: Self):
+        self.faces = copy.faces.copy()
+
+    fn __moveinit__(out self, deinit take: Self):
+        self.faces = take.faces^
 
     fn __repr__(self) -> String:
         var result: String = "Shell(\n"
         for i in range(self.faces.size):
             if i > 0:
                 result += ",\n"
-            result += repr(self.faces[i])
+            result += self.faces[i].__repr__()
         return result + ")"
 
     fn area(self) -> FType:

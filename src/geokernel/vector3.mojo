@@ -2,16 +2,26 @@ from geokernel import FType, Point
 from math import sqrt, acos, pi
 
 
-@value
-struct Vector3:
+struct Vector3(Copyable, Movable, ImplicitlyCopyable):
     var x: FType
     var y: FType
     var z: FType
 
-    fn __init__(inout self, x: FType, y: FType, z: FType):
+    fn __init__(out self, x: FType, y: FType, z: FType):
         self.x = x
         self.y = y
         self.z = z
+
+
+    fn __copyinit__(out self, copy: Self):
+        self.x = copy.x
+        self.y = copy.y
+        self.z = copy.z
+
+    fn __moveinit__(out self, deinit take: Self):
+        self.x = take.x
+        self.y = take.y
+        self.z = take.z
 
     @staticmethod
     fn from_point(p: Point) -> Self:
@@ -59,17 +69,17 @@ struct Vector3:
     fn __add__(self, other: Self) -> Self:
         return Self(self.x + other.x, self.y + other.y, self.z + other.z)
 
-    fn __iadd__(inout self, other: Self):
+    fn __iadd__(mut self, other: Self):
         self = self.__add__(other)
 
     fn __sub__(self, other: Self) -> Self:
         return Self(self.x - other.x, self.y - other.y, self.z - other.z)
 
-    fn __isub__(inout self, other: Self):
+    fn __isub__(mut self, other: Self):
         self = self.__sub__(other)
 
     fn __repr__(self) -> String:
-        return "Vector3(" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ")"
+        return "Vector3(" + String(self.x) + ", " + String(self.y) + ", " + String(self.z) + ")"
 
     fn components(self) -> (FType, FType, FType):
         return (self.x, self.y, self.z)

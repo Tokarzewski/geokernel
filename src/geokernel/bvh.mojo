@@ -1,9 +1,10 @@
 from geokernel import AABB
 
 
-@value
-struct BVH:
+struct BVH(Copyable, Movable, ImplicitlyCopyable):
     """Boundary Volume Hierarchy"""
 
     var aabbs: List[AABB]
-    var objects: ...
+
+    fn __init__(out self, aabbs: List[AABB]):
+        self.aabbs = aabbs

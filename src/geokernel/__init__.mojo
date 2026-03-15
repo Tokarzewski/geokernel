@@ -1,4 +1,7 @@
 from .aliases import FType, LP
+from .surface import Surface
+from .planar_surface import PlanarSurface
+from .nurbs_surface import NurbsSurface
 from .aabb import AABB
 from .bvh import BVH
 from .cell import Cell
@@ -11,7 +14,12 @@ from .face import Face
 from .quaternion import Quaternion
 from .shell import Shell
 from .transform import Transform
+from .triangulation import Triangulation
+from .point_in_polygon import PointInPolygon
 from .units import Units
 from .vector3 import Vector3
 from .vector4 import Vector4
 from .wire import Wire
+from .curve import Curve
+from .circle import Circle
+from .nurbs_curve import NurbsCurve

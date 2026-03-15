@@ -2,7 +2,6 @@ from geokernel import FType, Point
 from math import sqrt
 
 
-@value
 struct Vector4(Representable):
     """Vector - with 4 dimensions and Ftype precision."""
 
@@ -11,11 +10,24 @@ struct Vector4(Representable):
     var z: FType
     var w: FType
 
-    fn __init__(inout self, x: FType, y: FType, z: FType, w: FType):
+    fn __init__(out self, x: FType, y: FType, z: FType, w: FType):
         self.x = x
         self.y = y
         self.z = z
         self.w = w
+
+
+    fn __copyinit__(out self, copy: Self):
+        self.x = copy.x
+        self.y = copy.y
+        self.z = copy.z
+        self.w = copy.w
+
+    fn __moveinit__(out self, deinit take: Self):
+        self.x = take.x
+        self.y = take.y
+        self.z = take.z
+        self.w = take.w
 
     @staticmethod
     fn zero() -> Self:
@@ -45,7 +57,7 @@ struct Vector4(Representable):
             self.w + other.w,
         )
 
-    fn __iadd__(inout self, other: Self):
+    fn __iadd__(mut self, other: Self):
         self = self.__add__(other)
 
     fn __sub__(self, other: Self) -> Self:
@@ -56,7 +68,7 @@ struct Vector4(Representable):
             self.w - other.w,
         )
 
-    fn __isub__(inout self, other: Self):
+    fn __isub__(mut self, other: Self):
         self = self.__sub__(other)
 
     fn __mul__(self, scalar: FType) -> Self:
@@ -68,13 +80,13 @@ struct Vector4(Representable):
     fn __repr__(self) -> String:
         return (
             "Vector4("
-            + str(self.x)
+            + String(self.x)
             + ", "
-            + str(self.y)
+            + String(self.y)
             + ", "
-            + str(self.z)
+            + String(self.z)
             + ", "
-            + str(self.w)
+            + String(self.w)
             + ")"
         )
 

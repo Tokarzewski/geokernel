@@ -1,19 +1,25 @@
 from geokernel import FType, Point, Line, Vector3
 
 
-@value
-struct Wire:
+struct Wire(Copyable, Movable, ImplicitlyCopyable):
     var points: List[Point]
 
-    fn __init__(inout self, points: List[Point]):
+    fn __init__(out self, points: List[Point]):
         self.points = points
+
+
+    fn __copyinit__(out self, copy: Self):
+        self.points = copy.points.copy()
+
+    fn __moveinit__(out self, deinit take: Self):
+        self.points = take.points^
 
     fn __repr__(self) -> String:
         var result: String = "Wire("
         for i in range(self.points.size):
             if i > 0:
                 result += ", "
-            result += repr(self.points[i])
+            result += self.points[i].__repr__()
         return result + ")"
 
     fn num_points(self) -> Int:
@@ -37,7 +43,7 @@ struct Wire:
     fn is_closed(self) -> Bool:
         return self.startpoint() == self.endpoint()
 
-    fn reverse(inout self) -> Self:
+    fn reverse(mut self) -> Self:
         self.points.reverse()
         return self
 
@@ -62,4 +68,4 @@ struct Wire:
         for i in range(self.num_segments()):
             var face = self.get_segment(i).extrude(v)
             faces.append(face)
-        return Shell(List[Face](faces))
+        return Shell(faces)

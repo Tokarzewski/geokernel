@@ -2,18 +2,30 @@ from geokernel import FType, Vector3
 from math import sin, cos, sqrt, acos, pi, atan2, asin
 
 
-@value
-struct Quaternion:
+struct Quaternion(Copyable, Movable, ImplicitlyCopyable):
     var x: FType
     var y: FType
     var z: FType
     var w: FType
 
-    fn __init__(inout self, x: FType, y: FType, z: FType, w: FType):
+    fn __init__(out self, x: FType, y: FType, z: FType, w: FType):
         self.x = x
         self.y = y
         self.z = z
         self.w = w
+
+
+    fn __copyinit__(out self, copy: Self):
+        self.x = copy.x
+        self.y = copy.y
+        self.z = copy.z
+        self.w = copy.w
+
+    fn __moveinit__(out self, deinit take: Self):
+        self.x = take.x
+        self.y = take.y
+        self.z = take.z
+        self.w = take.w
 
     fn __add__(self, other: Self) -> Self:
         return Self(
@@ -48,13 +60,13 @@ struct Quaternion:
     fn __repr__(self) -> String:
         return (
             "Quaternion("
-            + str(self.x)
+            + String(self.x)
             + ", "
-            + str(self.y)
+            + String(self.y)
             + ", "
-            + str(self.z)
+            + String(self.z)
             + ", "
-            + str(self.w)
+            + String(self.w)
             + ")"
         )
 

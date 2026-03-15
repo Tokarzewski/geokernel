@@ -1,21 +1,31 @@
 from geokernel import Matrix4, Quaternion, Vector3
 
 
-@value
-struct Transform:
+struct Transform(Copyable, Movable, ImplicitlyCopyable):
     var movement: Vector3
     var scale: Vector3
     var rotation: Quaternion
 
-    def __init__(inout self, movement: Vector3, scale: Vector3, rotation: Quaternion):
+    def __init__(out self, movement: Vector3, scale: Vector3, rotation: Quaternion):
         self.movement = movement
         self.scale = scale
         self.rotation = rotation
 
-    def __init__(inout self, matrix4: Matrix4):
+    def __init__(out self, matrix4: Matrix4):
         self.movement = matrix4.movement()
         self.scale = matrix4.scale()
         self.rotation = matrix4.rotation()
+
+
+    fn __copyinit__(out self, copy: Self):
+        self.movement = copy.movement
+        self.scale = copy.scale
+        self.rotation = copy.rotation
+
+    fn __moveinit__(out self, deinit take: Self):
+        self.movement = take.movement
+        self.scale = take.scale
+        self.rotation = take.rotation
 
     def inverse(self) -> Self:
         movement = self.movement.reverse()

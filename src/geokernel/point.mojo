@@ -2,16 +2,26 @@ from geokernel import FType, Vector3
 import math
 
 
-@value
-struct Point(Movable):
+struct Point(Copyable, Movable, ImplicitlyCopyable):
     var x: FType
     var y: FType
     var z: FType
 
-    fn __init__(inout self, x: FType, y: FType, z: FType):
+    fn __init__(out self, x: FType, y: FType, z: FType):
         self.x = x
         self.y = y
         self.z = z
+
+
+    fn __copyinit__(out self, copy: Self):
+        self.x = copy.x
+        self.y = copy.y
+        self.z = copy.z
+
+    fn __moveinit__(out self, deinit take: Self):
+        self.x = take.x
+        self.y = take.y
+        self.z = take.z
 
     fn __mul__(self, scalar: FType) -> Self:
         return Self(self.x * scalar, self.y * scalar, self.z * scalar)
@@ -28,13 +38,13 @@ struct Point(Movable):
     fn __add__(self, other: Self) -> Self:
         return Self(self.x + other.x, self.y + other.y, self.z + other.z)
 
-    fn __iadd__(inout self, other: Self):
+    fn __iadd__(mut self, other: Self):
         self = self.__add__(other)
 
     fn __sub__(self, other: Self) -> Self:
         return Self(self.x - other.x, self.y - other.y, self.z - other.z)
 
-    fn __isub__(inout self, other: Self):
+    fn __isub__(mut self, other: Self):
         self = self.__sub__(other)
 
     fn __lt__(self, other: Self) -> Bool:
@@ -50,7 +60,7 @@ struct Point(Movable):
         return self.x >= other.x and self.y >= other.y and self.z >= other.z
 
     fn __repr__(self) -> String:
-        return "Point(" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ")"
+        return "Point(" + String(self.x) + ", " + String(self.y) + ", " + String(self.z) + ")"
 
     fn coordinates(self) -> (FType, FType, FType):
         return (self.x, self.y, self.z)

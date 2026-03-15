@@ -2,8 +2,7 @@ from geokernel import FType, Vector4, Quaternion
 from math import sqrt
 
 
-@value
-struct Matrix4:
+struct Matrix4(Copyable, Movable, ImplicitlyCopyable):
     """Row Major 4x4 Matrix."""
 
     var row1: Vector4
@@ -11,13 +10,13 @@ struct Matrix4:
     var row3: Vector4
     var row4: Vector4
 
-    fn __init__(inout self, row1: Vector4, row2: Vector4, row3: Vector4, row4: Vector4):
+    fn __init__(out self, row1: Vector4, row2: Vector4, row3: Vector4, row4: Vector4):
         self.row1 = row1
         self.row2 = row2
         self.row3 = row3
         self.row4 = row4
 
-    fn __init__(inout self, q: Quaternion):
+    fn __init__(out self, q: Quaternion):
         var x = q.x
         var y = q.y
         var z = q.z
@@ -37,6 +36,19 @@ struct Matrix4:
         self.row2 = Vector4(2 * (xy + wz), 1 - 2 * (x2 + z2), 2 * (yz - wx), 0)
         self.row3 = Vector4(2 * (xz - wy), 2 * (yz + wx), 1 - 2 * (x2 + y2), 0)
         self.row4 = Vector4(0, 0, 0, 1)
+
+
+    fn __copyinit__(out self, copy: Self):
+        self.row1 = copy.row1
+        self.row2 = copy.row2
+        self.row3 = copy.row3
+        self.row4 = copy.row4
+
+    fn __moveinit__(out self, deinit take: Self):
+        self.row1 = take.row1
+        self.row2 = take.row2
+        self.row3 = take.row3
+        self.row4 = take.row4
 
     @staticmethod
     fn identity() -> Matrix4:

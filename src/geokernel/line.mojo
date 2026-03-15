@@ -1,14 +1,25 @@
 from geokernel import FType, Point, Vector3, Face
-from math import sqrt
 
 
-@value
-struct Line:
+struct Line(Copyable, Movable, ImplicitlyCopyable):
     var p1: Point
     var p2: Point
 
+    fn __init__(out self, p1: Point, p2: Point):
+        self.p1 = p1
+        self.p2 = p2
+
+
+    fn __copyinit__(out self, copy: Self):
+        self.p1 = copy.p1
+        self.p2 = copy.p2
+
+    fn __moveinit__(out self, deinit take: Self):
+        self.p1 = take.p1
+        self.p2 = take.p2
+
     fn __repr__(self) -> String:
-        return "Line(" + repr(self.p1) + ", " + repr(self.p2) + ")"
+        return "Line(" + self.p1.__repr__() + ", " + self.p2.__repr__() + ")"
 
     fn direction(self) -> Vector3:
         return Vector3.from_point(self.p2 - self.p1)
@@ -45,8 +56,7 @@ struct Line:
 
     fn extrude(self, v: Vector3) -> Face:
         var line2 = self.move_by_vector(v)
-
-        return Face(List[Point](self.p1, self.p2, line2.p2, line2.p1))
+        return Face([self.p1, self.p2, line2.p2, line2.p1])
 
     fn intersects(self, other: Self, atol: FType = 1e-15) -> Tuple[Bool, Point]:
         """
