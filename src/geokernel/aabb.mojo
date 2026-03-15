@@ -35,6 +35,6 @@ struct AABB(Copyable, Movable, ImplicitlyCopyable):
         return self.p_min <= point <= self.p_max
 
     fn extend(mut self, points: List[Point]):
-        for i in range(0, points.size):
+        for i in range(0, len(points)):
             self.p_min = Point.min(self.p_min, points[i])
             self.p_max = Point.max(self.p_max, points[i])
