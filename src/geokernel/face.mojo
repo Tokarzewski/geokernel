@@ -189,6 +189,19 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
             result.append(Face(tri_pts))
         return result.copy()
 
+    fn push_pull(self, distance: Float64) -> Shell:
+        """Extrude this face along its normal by the given distance, returning the resulting Shell."""
+        var n = self.normal()
+        var v = n * distance
+        var top = self.move_by_vector(v)
+        var sides = self.wire().extrude(v)
+        var faces = List[Face]()
+        faces.append(self)
+        faces.append(top)
+        for i in range(len(sides.faces)):
+            faces.append(sides.faces[i])
+        return Shell(faces)
+
     fn extrude(self, v: Vector3) -> Cell:
         var faces = List[Face]()
         faces.append(self)  # original polygon
