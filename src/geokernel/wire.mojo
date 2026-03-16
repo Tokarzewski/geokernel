@@ -103,6 +103,32 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
             rotated.append(self.points[i].rotate(q))
         return Self(rotated)
 
+    fn sweep_along_wire(self, path: Wire) -> Shell:
+        """Sweep this wire profile along a path wire, creating a Shell."""
+        var faces = List[Face]()
+        var path_pts = path.points.copy()
+        if len(path_pts) < 2:
+            return Shell(faces)
+        var current = self
+        for i in range(len(path_pts) - 1):
+            var delta = Vector3(
+                path_pts[i + 1].x - path_pts[i].x,
+                path_pts[i + 1].y - path_pts[i].y,
+                path_pts[i + 1].z - path_pts[i].z,
+            )
+            var next_pos = current.move_by_vector(delta)
+            for j in range(current.num_segments()):
+                var seg_a = current.get_segment(j)
+                var seg_b = next_pos.get_segment(j)
+                var face_pts = List[Point]()
+                face_pts.append(seg_a.p1)
+                face_pts.append(seg_a.p2)
+                face_pts.append(seg_b.p2)
+                face_pts.append(seg_b.p1)
+                faces.append(Face(face_pts))
+            current = next_pos
+        return Shell(faces)
+
     fn sweep(self, path: Line) -> Shell:
         var direction = path.direction()
         var moved = self.move_by_vector(direction)

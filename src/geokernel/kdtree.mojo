@@ -222,7 +222,7 @@ struct KDTree(Copyable, Movable, ImplicitlyCopyable):
         var result = List[Point]()
         for i in range(m):
             result.append(self.points[heap_idx[i]])
-        return result
+        return result^
 
     fn _k_nearest_search(
         self,

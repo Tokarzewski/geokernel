@@ -116,7 +116,7 @@ fn intersect_faces(a: Face, b: Face) -> Face:
     var pts_b = _face_to_open_points(b)
     var result = clip_polygon(pts_a, pts_b)
 
-    if len(result) == 0:
+    if len(result) < 3:
         return Face(List[Point]())
     return Face(result)
 
@@ -132,7 +132,7 @@ fn union_faces(a: Face, b: Face) -> List[Face]:
         return result^
 
     var inter = intersect_faces(a, b)
-    if inter.num_vertices() == 0:
+    if inter.num_vertices() <= 0:
         # Disjoint — return both
         var result = List[Face]()
         result.append(a)
@@ -163,7 +163,7 @@ fn difference_faces(a: Face, b: Face) -> List[Face]:
         return result^
 
     var inter = intersect_faces(a, b)
-    if inter.num_vertices() == 0:
+    if inter.num_vertices() <= 0:
         # No overlap — a minus b == a
         var result = List[Face]()
         result.append(a)
@@ -231,14 +231,17 @@ fn _convex_hull_2d(pts: List[Point], normal: Vector3) -> List[Point]:
     var px = xs[0]
     var py = ys[0]
 
-    # Sort by polar angle — simple selection sort (small N expected)
+    # Sort by polar angle (CCW, ascending from smallest angle) — selection sort
+    # cross(a,b) = ax*by - ay*bx > 0 means a is CW from b (a has smaller polar angle)
+    # We want the point with the smallest polar angle first → find min → swap when j < min
     for i in range(1, num - 1):
         var min_idx = i
         for j in range(i + 1, num):
             var ax = xs[j] - px; var ay = ys[j] - py
             var bx = xs[min_idx] - px; var by = ys[min_idx] - py
             var cross = ax * by - ay * bx
-            if cross < 0:
+            if cross > 0:
+                # j is more CW than min_idx → j has smaller polar angle → j comes first
                 min_idx = j
             elif cross == 0:
                 if ax * ax + ay * ay < bx * bx + by * by:
