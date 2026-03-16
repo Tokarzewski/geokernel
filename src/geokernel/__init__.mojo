@@ -30,3 +30,5 @@ from .stl import shell_to_stl_ascii, export_stl_ascii, import_stl_ascii
 from .intersection import line_face_intersection, point_in_solid_ray_cast
 from .distance import point_to_point, point_to_line, point_to_segment, point_to_plane, point_to_face, segment_to_segment
 from .slice import FacePair, classify_point, slice_face_by_plane, slice_faces_by_plane
+from .triangulation import triangulate_face_ear_clipping, triangulate_shell
+from .intersections import ray_shell_intersection, segment_segment_intersection, shell_shell_intersection
