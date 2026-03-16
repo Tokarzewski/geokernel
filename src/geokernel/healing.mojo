@@ -175,7 +175,155 @@ fn remove_degenerate_edges(shell: Shell, tol: Float64 = 1e-9) -> Shell:
 
 
 # ---------------------------------------------------------------------------
-# 3. Fix face normals
+# 3. Close shell gaps
+# ---------------------------------------------------------------------------
+
+fn close_shell_gaps(shell: Shell, tol: Float64 = 1e-4) -> Shell:
+    """Attempt to close small gaps in a shell by snapping nearby open boundary edges.
+
+    Algorithm:
+    1. Find boundary edges (edges that appear in only 1 face = open boundary)
+    2. For each pair of boundary edges that are close (endpoints within tol):
+       - If endpoints match within tol, merge them (snap to midpoint)
+    3. Rebuild affected faces with snapped vertices
+    4. Return healed shell
+    """
+    var tol_sq = tol * tol
+
+    # --- Step 1: Collect all edges with face index, counting occurrences ---
+    # Store edges as (p1, p2) with a count; boundary edges have count == 1
+    var edge_p1 = List[Point]()
+    var edge_p2 = List[Point]()
+    var edge_count = List[Int]()
+
+    for fi in range(len(shell.faces)):
+        var face = shell.faces[fi]
+        for ei in range(face.num_edges()):
+            var ep1 = face.get_vertex(ei)
+            var ep2 = face.get_vertex((ei + 1) % face.num_vertices())
+            # Check if edge (or reverse) already tracked
+            var found = False
+            for k in range(len(edge_p1)):
+                var fwd = _dist_sq(ep1, edge_p1[k]) < tol_sq and _dist_sq(ep2, edge_p2[k]) < tol_sq
+                var rev = _dist_sq(ep1, edge_p2[k]) < tol_sq and _dist_sq(ep2, edge_p1[k]) < tol_sq
+                if fwd or rev:
+                    edge_count[k] += 1
+                    found = True
+                    break
+            if not found:
+                edge_p1.append(ep1)
+                edge_p2.append(ep2)
+                edge_count.append(1)
+
+    # --- Step 2: Collect boundary edge endpoints ---
+    var boundary_pts = List[Point]()
+    for k in range(len(edge_p1)):
+        if edge_count[k] == 1:
+            # Add both endpoints (avoiding near-duplicates)
+            var ep_pair = List[Point]()
+            ep_pair.append(edge_p1[k])
+            ep_pair.append(edge_p2[k])
+            for pi in range(len(ep_pair)):
+                var bp = ep_pair[pi]
+                var already = False
+                for j in range(len(boundary_pts)):
+                    if _dist_sq(bp, boundary_pts[j]) < tol_sq:
+                        already = True
+                        break
+                if not already:
+                    boundary_pts.append(bp)
+
+    if len(boundary_pts) == 0:
+        return shell  # No boundary edges, nothing to heal
+
+    # --- Step 3: Build snap map — for each boundary point, find a partner to snap to ---
+    # snap_target[i] = index of the canonical point for boundary_pts[i]
+    # Use union-find to group boundary points within tol
+    var parent = List[Int]()
+    for i in range(len(boundary_pts)):
+        parent.append(i)
+
+    fn find(mut parent: List[Int], i: Int) -> Int:
+        var root = i
+        while parent[root] != root:
+            root = parent[root]
+        var cur = i
+        while cur != root:
+            var nxt = parent[cur]
+            parent[cur] = root
+            cur = nxt
+        return root
+
+    for i in range(len(boundary_pts)):
+        for j in range(i + 1, len(boundary_pts)):
+            if _dist_sq(boundary_pts[i], boundary_pts[j]) <= tol_sq:
+                var ri = find(parent, i)
+                var rj = find(parent, j)
+                if ri != rj:
+                    parent[ri] = rj
+
+    # Compute midpoint for each cluster
+    var cluster_roots = List[Int]()
+    var cluster_sx = List[FType]()
+    var cluster_sy = List[FType]()
+    var cluster_sz = List[FType]()
+    var cluster_cnt = List[Int]()
+
+    for i in range(len(boundary_pts)):
+        var root = find(parent, i)
+        var idx = -1
+        for k in range(len(cluster_roots)):
+            if cluster_roots[k] == root:
+                idx = k
+                break
+        if idx == -1:
+            cluster_roots.append(root)
+            cluster_sx.append(boundary_pts[i].x)
+            cluster_sy.append(boundary_pts[i].y)
+            cluster_sz.append(boundary_pts[i].z)
+            cluster_cnt.append(1)
+        else:
+            cluster_sx[idx] += boundary_pts[i].x
+            cluster_sy[idx] += boundary_pts[i].y
+            cluster_sz[idx] += boundary_pts[i].z
+            cluster_cnt[idx] += 1
+
+    # Build canonical position for each boundary point
+    var canonical = List[Point]()
+    for _ in range(len(boundary_pts)):
+        canonical.append(Point(0.0, 0.0, 0.0))
+
+    for i in range(len(boundary_pts)):
+        var root = find(parent, i)
+        for k in range(len(cluster_roots)):
+            if cluster_roots[k] == root:
+                var c = FType(cluster_cnt[k])
+                canonical[i] = Point(cluster_sx[k] / c, cluster_sy[k] / c, cluster_sz[k] / c)
+                break
+
+    # --- Step 4: Rebuild faces, snapping boundary vertices ---
+    var new_faces = List[Face]()
+    for fi in range(len(shell.faces)):
+        var face = shell.faces[fi]
+        var new_pts = List[Point]()
+        for vi in range(face.num_vertices()):
+            var p = face.get_vertex(vi)
+            # Check if this vertex is a boundary point that needs snapping
+            var snapped = False
+            for bi in range(len(boundary_pts)):
+                if _dist_sq(p, boundary_pts[bi]) <= tol_sq:
+                    new_pts.append(canonical[bi])
+                    snapped = True
+                    break
+            if not snapped:
+                new_pts.append(p)
+        new_faces.append(Face(new_pts))
+
+    return Shell(new_faces)
+
+
+# ---------------------------------------------------------------------------
+# 4. Fix face normals
 # ---------------------------------------------------------------------------
 
 fn fix_face_normals(shell: Shell) -> Shell:
