@@ -1,4 +1,4 @@
-from geokernel import FType, Point, Vector3, Line, Face
+from geokernel import FType, Point, Vector3, Line, Face, Shell
 from std.math import sqrt
 
 
@@ -155,3 +155,53 @@ fn segment_to_segment(l1: Line, l2: Line) -> FType:
     var p_closest = l1.point_at(s)
     var q_closest = l2.point_at(t)
     return point_to_point(p_closest, q_closest)
+
+
+fn face_to_face(f1: Face, f2: Face) -> FType:
+    """Minimum distance between two faces.
+    If they intersect, returns 0.0.
+    Otherwise, minimum of distances from each vertex of f1 to f2, and vice versa."""
+    # Check edge-edge distances (catches intersection and near-miss cases)
+    var min_dist = FType(1.0e18)
+    for i in range(f1.num_edges()):
+        for j in range(f2.num_edges()):
+            var d = segment_to_segment(f1.get_edge(i), f2.get_edge(j))
+            if d < min_dist:
+                min_dist = d
+    # Also check vertex-to-face distances (handles one face inside another)
+    for i in range(f1.num_vertices()):
+        var d = point_to_face(f1.get_vertex(i), f2)
+        if d < min_dist:
+            min_dist = d
+    for i in range(f2.num_vertices()):
+        var d = point_to_face(f2.get_vertex(i), f1)
+        if d < min_dist:
+            min_dist = d
+    return min_dist
+
+
+fn face_to_point(f: Face, p: Point) -> FType:
+    """Alias for point_to_face(p, f) — for symmetry."""
+    return point_to_face(p, f)
+
+
+fn shell_to_point(shell: Shell, p: Point) -> FType:
+    """Minimum distance from point to nearest face in shell."""
+    var min_dist = FType(1.0e18)
+    for i in range(len(shell.faces)):
+        var d = point_to_face(p, shell.faces[i])
+        if d < min_dist:
+            min_dist = d
+    return min_dist
+
+
+fn shell_to_shell(s1: Shell, s2: Shell) -> FType:
+    """Minimum distance between two shells.
+    Iterate face pairs, return minimum face_to_face distance."""
+    var min_dist = FType(1.0e18)
+    for i in range(len(s1.faces)):
+        for j in range(len(s2.faces)):
+            var d = face_to_face(s1.faces[i], s2.faces[j])
+            if d < min_dist:
+                min_dist = d
+    return min_dist

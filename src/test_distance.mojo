@@ -1,5 +1,5 @@
 from testing import assert_true
-from geokernel import FType, Point, Vector3, Line, Face
+from geokernel import FType, Point, Vector3, Line, Face, Shell
 from geokernel.distance import (
     point_to_point,
     point_to_line,
@@ -7,6 +7,10 @@ from geokernel.distance import (
     point_to_plane,
     point_to_face,
     segment_to_segment,
+    face_to_face,
+    face_to_point,
+    shell_to_point,
+    shell_to_shell,
 )
 from std.math import sqrt, abs
 
@@ -112,6 +116,71 @@ def test_segment_to_segment_skew() raises:
     assert_true(near(segment_to_segment(s1, s2), sqrt(FType(2.0))))
 
 
+fn make_square(ox: FType, oy: FType, oz: FType) -> Face:
+    """Unit square face at offset (ox, oy, oz) in the XY plane."""
+    var pts = List[Point]()
+    pts.append(Point(ox, oy, oz))
+    pts.append(Point(ox + 1.0, oy, oz))
+    pts.append(Point(ox + 1.0, oy + 1.0, oz))
+    pts.append(Point(ox, oy + 1.0, oz))
+    return Face(pts)
+
+
+# 14. face_to_face: separated faces → dist = 2.0
+def test_face_to_face_separated() raises:
+    var f1 = make_square(0.0, 0.0, 0.0)
+    var f2 = make_square(0.0, 0.0, 2.0)
+    assert_true(near(face_to_face(f1, f2), 2.0))
+
+
+# 15. face_to_face: coplanar touching → 0.0
+def test_face_to_face_touching() raises:
+    var f1 = make_square(0.0, 0.0, 0.0)
+    var f2 = make_square(1.0, 0.0, 0.0)
+    assert_true(near(face_to_face(f1, f2), 0.0))
+
+
+# 16. face_to_face: overlapping → 0.0
+def test_face_to_face_overlapping() raises:
+    var f1 = make_square(0.0, 0.0, 0.0)
+    var f2 = make_square(0.5, 0.5, 0.0)
+    assert_true(near(face_to_face(f1, f2), 0.0))
+
+
+# 17. face_to_point: symmetry with point_to_face
+def test_face_to_point() raises:
+    var sq = make_square(0.0, 0.0, 0.0)
+    var p = Point(0.5, 0.5, 3.0)
+    assert_true(near(face_to_point(sq, p), point_to_face(p, sq)))
+
+
+# 18. shell_to_point: nearest face of a two-face shell
+def test_shell_to_point() raises:
+    var faces = List[Face]()
+    faces.append(make_square(0.0, 0.0, 0.0))
+    faces.append(make_square(0.0, 0.0, 10.0))
+    var s = Shell(faces)
+    assert_true(near(shell_to_point(s, Point(0.5, 0.5, 1.0)), 1.0))
+
+
+# 19. shell_to_shell: separated shells
+def test_shell_to_shell_separated() raises:
+    var fa = List[Face]()
+    fa.append(make_square(0.0, 0.0, 0.0))
+    var fb = List[Face]()
+    fb.append(make_square(0.0, 0.0, 5.0))
+    assert_true(near(shell_to_shell(Shell(fa), Shell(fb)), 5.0))
+
+
+# 20. shell_to_shell: overlapping → 0.0
+def test_shell_to_shell_touching() raises:
+    var fa = List[Face]()
+    fa.append(make_square(0.0, 0.0, 0.0))
+    var fb = List[Face]()
+    fb.append(make_square(0.5, 0.5, 0.0))
+    assert_true(near(shell_to_shell(Shell(fa), Shell(fb)), 0.0))
+
+
 fn main() raises:
     print("=== test_distance.mojo ===")
     test_point_to_point()
@@ -127,4 +196,11 @@ fn main() raises:
     test_segment_to_segment_parallel()
     test_segment_to_segment_crossing()
     test_segment_to_segment_skew()
-    print("=== ALL 13 DISTANCE TESTS PASSED ✓ ===")
+    test_face_to_face_separated()
+    test_face_to_face_touching()
+    test_face_to_face_overlapping()
+    test_face_to_point()
+    test_shell_to_point()
+    test_shell_to_shell_separated()
+    test_shell_to_shell_touching()
+    print("=== ALL 20 DISTANCE TESTS PASSED ✓ ===")
