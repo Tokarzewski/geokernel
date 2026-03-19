@@ -1,7 +1,7 @@
 from geokernel import Point, LP, Face, Shell
 
 
-fn main():
+def main():
     p1 = Point(0, 0, 0)
     p2 = Point(1, 0, 0)
     p3 = Point(1, 1, 0)

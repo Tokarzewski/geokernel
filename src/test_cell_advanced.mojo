@@ -1,4 +1,4 @@
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 from geokernel import FType, Point, Face
 from geokernel import sphere_faces, cylinder_faces, cone_faces
 from math import sqrt, pi
@@ -6,7 +6,7 @@ from math import sqrt, pi
 
 # ─── Sphere analytical tests ─────────────────────────────────────────────────
 
-fn test_sphere_area_analytical() raises:
+def test_sphere_area_analytical() raises:
     """Sphere (r=1, 16x8): total area ≈ 4π ≈ 12.566 within 5%."""
     var center = Point(0.0, 0.0, 0.0)
     var r: FType = 1.0
@@ -20,7 +20,7 @@ fn test_sphere_area_analytical() raises:
     assert_true(rel_err < 0.05)
 
 
-fn test_sphere_face_count_approx() raises:
+def test_sphere_face_count_approx() raises:
     """Sphere (16x8): face count ≈ u_seg * v_seg * 2 = 256 faces.
     Poles give one triangle per longitude step (not a quad), so:
       2 cap rows * 16 triangles + 6 middle rows * 16 quads = 32 + 96 = 128
@@ -35,7 +35,7 @@ fn test_sphere_face_count_approx() raises:
     assert_equal(len(faces), expected)
 
 
-fn test_sphere_r2_area_analytical() raises:
+def test_sphere_r2_area_analytical() raises:
     """Sphere (r=2, 32x16): total area ≈ 4π·4 = 16π within 5%."""
     var center = Point(0.0, 0.0, 0.0)
     var r: FType = 2.0
@@ -48,7 +48,7 @@ fn test_sphere_r2_area_analytical() raises:
     assert_true(rel_err < 0.05)
 
 
-fn test_sphere_all_vertices_on_surface() raises:
+def test_sphere_all_vertices_on_surface() raises:
     """All sphere vertices must lie at distance r from center (within 1e-9)."""
     var cx: FType = 1.0; var cy: FType = 2.0; var cz: FType = 3.0
     var r: FType = 1.5
@@ -65,7 +65,7 @@ fn test_sphere_all_vertices_on_surface() raises:
 
 # ─── Cylinder analytical tests ────────────────────────────────────────────────
 
-fn test_cylinder_area_analytical() raises:
+def test_cylinder_area_analytical() raises:
     """Cylinder (r=1, h=2, 32 segments):
     area = 2·π·r² + 2·π·r·h = 2π(r² + r·h) = 2π·(1 + 2) = 6π ≈ 18.85 within 5%."""
     var center = Point(0.0, 0.0, 0.0)
@@ -80,7 +80,7 @@ fn test_cylinder_area_analytical() raises:
     assert_true(rel_err < 0.05)
 
 
-fn test_cylinder_face_count() raises:
+def test_cylinder_face_count() raises:
     """Cylinder (N segments): N side quads + N bottom tris + N top tris = 3N faces."""
     var center = Point(0.0, 0.0, 0.0)
     var N: Int = 32
@@ -88,14 +88,14 @@ fn test_cylinder_face_count() raises:
     assert_equal(len(faces), 3 * N)
 
 
-fn test_cylinder_face_count_small() raises:
+def test_cylinder_face_count_small() raises:
     """Cylinder (4 segments): 4 side + 4 bot + 4 top = 12 faces."""
     var center = Point(0.0, 0.0, 0.0)
     var faces = cylinder_faces(center, 1.0, 1.0, 4)
     assert_equal(len(faces), 12)
 
 
-fn test_cylinder_all_faces_valid() raises:
+def test_cylinder_all_faces_valid() raises:
     """All cylinder faces must have at least 3 vertices."""
     var center = Point(0.0, 0.0, 0.0)
     var faces = cylinder_faces(center, 1.0, 2.0, 16)
@@ -105,7 +105,7 @@ fn test_cylinder_all_faces_valid() raises:
 
 # ─── Cone analytical tests ────────────────────────────────────────────────────
 
-fn test_cone_face_count_spec() raises:
+def test_cone_face_count_spec() raises:
     """Cone (r=1, h=1, N=32): face count == N (side tris) + N (base tris) = 2N = 64.
     Task spec says 32*2 + 32 = 96 for a total including base, side and cap.
     Our implementation: N side + N base = 2N. Verify formula matches code."""
@@ -116,14 +116,14 @@ fn test_cone_face_count_spec() raises:
     assert_equal(len(faces), 2 * N)
 
 
-fn test_cone_face_count_small() raises:
+def test_cone_face_count_small() raises:
     """Cone (4 segments): 4 side + 4 base = 8 faces."""
     var center = Point(0.0, 0.0, 0.0)
     var faces = cone_faces(center, 1.0, 1.0, 4)
     assert_equal(len(faces), 8)
 
 
-fn test_cone_apex_correct() raises:
+def test_cone_apex_correct() raises:
     """Side triangle apex must be at center.z + height."""
     var cz: FType = 0.0; var h: FType = 1.0
     var center = Point(0.0, 0.0, cz)
@@ -134,7 +134,7 @@ fn test_cone_apex_correct() raises:
         assert_true(abs(apex.z - (cz + h)) < 1e-9)
 
 
-fn test_cone_area_analytical() raises:
+def test_cone_area_analytical() raises:
     """Cone (r=1, h=0, so slant=r=1): lateral area = π·r·l = π·1·1 = π.
     Base area = π·r² = π. Total ≈ 2π ≈ 6.283.
     For h=1: slant l = sqrt(r²+h²) = sqrt(2). Total = π·r·(r + l) = π·(1+√2).
@@ -151,7 +151,7 @@ fn test_cone_area_analytical() raises:
     assert_true(rel_err < 0.05)
 
 
-fn test_cone_all_faces_valid() raises:
+def test_cone_all_faces_valid() raises:
     """All cone faces must have at least 3 vertices."""
     var center = Point(0.0, 0.0, 0.0)
     var faces = cone_faces(center, 1.0, 1.0, 16)
@@ -159,7 +159,7 @@ fn test_cone_all_faces_valid() raises:
         assert_true(faces[i].num_vertices() >= 3)
 
 
-fn main() raises:
+def main() raises:
     # Sphere
     test_sphere_area_analytical()
     print("PASS test_sphere_area_analytical  (4π r² within 5%)")

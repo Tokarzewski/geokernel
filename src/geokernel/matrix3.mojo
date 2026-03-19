@@ -8,34 +8,29 @@ struct Matrix3(Copyable, Movable, ImplicitlyCopyable):
     var row2: Vector3
     var row3: Vector3
 
-    fn __init__(out self, row1: Vector3, row2: Vector3, row3: Vector3):
+    def __init__(out self, row1: Vector3, row2: Vector3, row3: Vector3):
         self.row1 = row1
         self.row2 = row2
         self.row3 = row3
 
-    fn __copyinit__(out self, copy: Self):
-        self.row1 = copy.row1
-        self.row2 = copy.row2
-        self.row3 = copy.row3
-
-    fn __moveinit__(out self, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         self.row1 = take.row1
         self.row2 = take.row2
         self.row3 = take.row3
 
-    fn __add__(self, scalar: FType) -> Self:
+    def __add__(self, scalar: FType) -> Self:
         return Self(self.row1 + scalar, self.row2 + scalar, self.row3 + scalar)
 
-    fn __sub__(self, scalar: FType) -> Self:
+    def __sub__(self, scalar: FType) -> Self:
         return Self(self.row1 - scalar, self.row2 - scalar, self.row3 - scalar)
 
-    fn __mul__(self, scalar: FType) -> Self:
+    def __mul__(self, scalar: FType) -> Self:
         return Self(self.row1 * scalar, self.row2 * scalar, self.row3 * scalar)
 
-    fn __truediv__(self, scalar: FType) -> Self:
+    def __truediv__(self, scalar: FType) -> Self:
         return Self(self.row1 / scalar, self.row2 / scalar, self.row3 / scalar)
 
-    fn __mul__(self, other: Self) -> Self:
+    def __mul__(self, other: Self) -> Self:
         return Self(
             Vector3(
                 self.row1.dot(other.col1()),
@@ -54,7 +49,7 @@ struct Matrix3(Copyable, Movable, ImplicitlyCopyable):
             ),
         )
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         return (
             "Matrix3(\n"
             + self.row1.__repr__()
@@ -66,26 +61,26 @@ struct Matrix3(Copyable, Movable, ImplicitlyCopyable):
         )
 
     @staticmethod
-    fn identity() -> Matrix3:
+    def identity() -> Matrix3:
         return Self(Vector3.unitX(), Vector3.unitY(), Vector3.unitZ())
 
     @staticmethod
-    fn zero() -> Matrix3:
+    def zero() -> Matrix3:
         return Self(Vector3.zero(), Vector3.zero(), Vector3.zero())
 
-    fn col1(self) -> Vector3:
+    def col1(self) -> Vector3:
         return Vector3(self.row1.x, self.row2.x, self.row3.x)
 
-    fn col2(self) -> Vector3:
+    def col2(self) -> Vector3:
         return Vector3(self.row1.y, self.row2.y, self.row3.y)
 
-    fn col3(self) -> Vector3:
+    def col3(self) -> Vector3:
         return Vector3(self.row1.z, self.row2.z, self.row3.z)
 
-    fn transpose(self) -> Self:
+    def transpose(self) -> Self:
         return Self(self.col1(), self.col2(), self.col3())
 
-    fn determinant(self) -> FType:
+    def determinant(self) -> FType:
         return (
             self.row1.x * (self.row2.y * self.row3.z - self.row2.z * self.row3.y)
             - self.row1.y * (self.row2.x * self.row3.z - self.row2.z * self.row3.x)

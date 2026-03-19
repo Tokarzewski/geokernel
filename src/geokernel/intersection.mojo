@@ -1,7 +1,7 @@
 from geokernel import FType, Point, Vector3, Line, Face, PointInPolygon
 
 
-fn line_face_intersection(line: Line, face: Face) -> Tuple[Bool, Point]:
+def line_face_intersection(line: Line, face: Face) -> Tuple[Bool, Point]:
     """Ray-plane intersection, then point-in-polygon test.
 
     Algorithm:
@@ -36,7 +36,7 @@ fn line_face_intersection(line: Line, face: Face) -> Tuple[Bool, Point]:
     return (False, Point(0, 0, 0))
 
 
-fn point_in_solid_ray_cast(p: Point, faces: List[Face]) -> Bool:
+def point_in_solid_ray_cast(p: Point, faces: List[Face]) -> Bool:
     """Cast ray in +Z direction from p, count face crossings.
     Odd count = inside, even = outside.
 

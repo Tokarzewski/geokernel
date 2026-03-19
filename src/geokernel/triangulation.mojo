@@ -1,7 +1,7 @@
 from geokernel import FType, Point, Face, Shell, Vector3
 
 
-fn triangulate_face_ear_clipping(face: Face) -> List[Face]:
+def triangulate_face_ear_clipping(face: Face) -> List[Face]:
     """Ear clipping triangulation for simple (possibly concave) polygons.
     Projects to local 2D coordinates, finds ear vertices (convex with no
     other polygon vertices inside), clips them one by one until 3 remain.
@@ -122,7 +122,7 @@ fn triangulate_face_ear_clipping(face: Face) -> List[Face]:
             for k in range(m2):
                 if k != ear_pos:
                     new_indices.append(indices[k])
-            indices = new_indices
+            indices = new_indices^
 
     # Emit the final triangle
     if len(indices) == 3:
@@ -135,7 +135,7 @@ fn triangulate_face_ear_clipping(face: Face) -> List[Face]:
     return result^
 
 
-fn triangulate_shell(shell: Shell) -> Shell:
+def triangulate_shell(shell: Shell) -> Shell:
     """Triangulate all faces of a shell using ear-clipping.
     Returns a new shell made entirely of triangular faces."""
     var all_faces = List[Face]()
@@ -148,7 +148,7 @@ fn triangulate_shell(shell: Shell) -> Shell:
 
 struct Triangulation:
     @staticmethod
-    fn triangulate(points: List[Point]) -> List[List[Int]]:
+    def triangulate(points: List[Point]) -> List[List[Int]]:
         """Fan triangulation for convex polygons.
         Returns list of triangles as index triples."""
         var result = List[List[Int]]()
@@ -164,7 +164,7 @@ struct Triangulation:
         return result.copy()
 
     @staticmethod
-    fn triangulate_to_points(points: List[Point]) -> List[List[Point]]:
+    def triangulate_to_points(points: List[Point]) -> List[List[Point]]:
         """Returns triangles as point lists."""
         var result = List[List[Point]]()
         var n = len(points)
@@ -179,7 +179,7 @@ struct Triangulation:
         return result.copy()
 
     @staticmethod
-    fn triangulate_face(face: Face) -> List[Face]:
+    def triangulate_face(face: Face) -> List[Face]:
         """Fan triangulation from first vertex. Returns list of triangle Faces."""
         var result = List[Face]()
         var n = face.num_vertices()

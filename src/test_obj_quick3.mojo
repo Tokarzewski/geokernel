@@ -1,6 +1,6 @@
 from std.testing import assert_true
 
-fn _split_line(line: String) -> List[String]:
+def _split_line(line: String) -> List[String]:
     var tokens = List[String]()
     var current = String("")
     for i in range(len(line)):

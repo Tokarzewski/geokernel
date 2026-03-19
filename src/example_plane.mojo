@@ -1,7 +1,7 @@
 from geokernel import Point, Plane, Vector3
 
 
-fn main():
+def main():
     point0 = Point(0, 0, 0)
     vector = Vector3(1, 0, 0)
     plane = Plane(point0, vector)

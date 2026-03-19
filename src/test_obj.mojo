@@ -4,7 +4,7 @@ from geokernel import export_obj, import_obj
 from geokernel.primitives import box_faces
 
 
-fn make_triangle() -> List[Face]:
+def make_triangle() -> List[Face]:
     var p1 = Point(0.0, 0.0, 0.0)
     var p2 = Point(1.0, 0.0, 0.0)
     var p3 = Point(0.0, 1.0, 0.0)
@@ -17,7 +17,7 @@ fn make_triangle() -> List[Face]:
     return faces^
 
 
-fn make_square() -> List[Face]:
+def make_square() -> List[Face]:
     var p1 = Point(0.0, 0.0, 0.0)
     var p2 = Point(1.0, 0.0, 0.0)
     var p3 = Point(1.0, 1.0, 0.0)

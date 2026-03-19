@@ -3,7 +3,7 @@ from math import pi
 from geokernel import Units
 
 
-fn main() raises:
+def main() raises:
     v1 = Vector3(1, 0, 0)
     v2 = Vector3(0, 1, 0)
 

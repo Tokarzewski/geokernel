@@ -2,7 +2,7 @@ from geokernel import Point, Face, Cell, Plane
 from geokernel.boolean import clip_polygon, intersect_faces, union_faces, difference_faces, union_cells, intersect_cells, difference_cells, slice_cell
 
 
-fn main():
+def main():
     # Test clip_polygon: clip a square by a smaller square
     var subject = List[Point]()
     subject.append(Point(0.0, 0.0, 0.0))

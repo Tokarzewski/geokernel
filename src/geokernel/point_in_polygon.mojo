@@ -1,10 +1,10 @@
 from geokernel import FType, Point, Vector3
-from math import sqrt
+from std.math import sqrt
 
 
 struct PointInPolygon:
     @staticmethod
-    fn ray_cast_2d(
+    def ray_cast_2d(
         px: FType,
         py: FType,
         polygon_x: List[FType],
@@ -29,7 +29,7 @@ struct PointInPolygon:
         return inside
 
     @staticmethod
-    fn classify(p: Point, face_points: List[Point], face_normal: Vector3) -> Bool:
+    def classify(p: Point, face_points: List[Point], face_normal: Vector3) -> Bool:
         """Project 3D points onto 2D plane aligned with normal, then ray cast."""
         # Build a local 2D coordinate system on the plane
         # u = any vector perpendicular to normal

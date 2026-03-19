@@ -4,14 +4,14 @@ from geokernel import PlanarSurface, NurbsSurface
 import math
 
 
-fn test_planar_surface_area() raises:
+def test_planar_surface_area() raises:
     var plane = Plane(Point(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0))
     var surf = PlanarSurface(plane, 4.0, 3.0)
     var a = surf.area()
     assert_true(math.isclose(a, 12.0, atol=1e-10, rtol=0.0))
 
 
-fn test_planar_surface_normal() raises:
+def test_planar_surface_normal() raises:
     var plane = Plane(Point(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0))
     var surf = PlanarSurface(plane, 4.0, 3.0)
     var n = surf.normal_at(0.5, 0.5)
@@ -20,7 +20,7 @@ fn test_planar_surface_normal() raises:
     assert_true(math.isclose(n.z, 1.0, atol=1e-10, rtol=0.0))
 
 
-fn test_planar_surface_point_at_center() raises:
+def test_planar_surface_point_at_center() raises:
     var origin = Point(0.0, 0.0, 5.0)
     var plane = Plane(origin, Vector3(0.0, 0.0, 1.0))
     var surf = PlanarSurface(plane, 2.0, 2.0)
@@ -31,13 +31,13 @@ fn test_planar_surface_point_at_center() raises:
     assert_true(math.isclose(p.z, 5.0, atol=1e-10, rtol=0.0))
 
 
-fn test_planar_surface_is_planar() raises:
+def test_planar_surface_is_planar() raises:
     var plane = Plane(Point(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0))
     var surf = PlanarSurface(plane, 1.0, 1.0)
     assert_true(surf.is_planar())
 
 
-fn test_planar_surface_project_point() raises:
+def test_planar_surface_project_point() raises:
     var plane = Plane(Point(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0))
     var surf = PlanarSurface(plane, 10.0, 10.0)
     var p = Point(1.0, 2.0, 5.0)
@@ -47,7 +47,7 @@ fn test_planar_surface_project_point() raises:
     assert_true(math.isclose(proj.z, 0.0, atol=1e-10, rtol=0.0))
 
 
-fn test_planar_surface_contains_point() raises:
+def test_planar_surface_contains_point() raises:
     var plane = Plane(Point(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0))
     var surf = PlanarSurface(plane, 4.0, 4.0)
     var inside = Point(0.5, 0.5, 0.0)
@@ -56,7 +56,7 @@ fn test_planar_surface_contains_point() raises:
     assert_false(surf.contains_point(outside, 1e-8))
 
 
-fn _make_bilinear_nurbs() -> NurbsSurface:
+def _make_bilinear_nurbs() -> NurbsSurface:
     """Create a simple 2x2 bilinear patch (unit square in XY plane)."""
     var cp = List[List[Point]]()
     var row0 = List[Point]()
@@ -93,7 +93,7 @@ fn _make_bilinear_nurbs() -> NurbsSurface:
     return NurbsSurface(cp, knots_u, knots_v, 1, 1, weights)
 
 
-fn test_nurbs_construction() raises:
+def test_nurbs_construction() raises:
     var surf = _make_bilinear_nurbs()
     assert_equal(surf.num_control_points_u(), 2)
     assert_equal(surf.num_control_points_v(), 2)
@@ -101,7 +101,7 @@ fn test_nurbs_construction() raises:
     assert_equal(surf.degree_v(), 1)
 
 
-fn test_nurbs_point_at_corner() raises:
+def test_nurbs_point_at_corner() raises:
     var surf = _make_bilinear_nurbs()
     var p = surf.point_at(0.0, 0.0)
     assert_true(math.isclose(p.x, 0.0, atol=1e-8, rtol=0.0))
@@ -109,7 +109,7 @@ fn test_nurbs_point_at_corner() raises:
     assert_true(math.isclose(p.z, 0.0, atol=1e-8, rtol=0.0))
 
 
-fn test_nurbs_point_at_center() raises:
+def test_nurbs_point_at_center() raises:
     var surf = _make_bilinear_nurbs()
     var p = surf.point_at(0.5, 0.5)
     assert_true(math.isclose(p.x, 0.5, atol=1e-8, rtol=0.0))
@@ -117,31 +117,31 @@ fn test_nurbs_point_at_center() raises:
     assert_true(math.isclose(p.z, 0.0, atol=1e-8, rtol=0.0))
 
 
-fn test_nurbs_is_planar() raises:
+def test_nurbs_is_planar() raises:
     var surf = _make_bilinear_nurbs()
     assert_true(surf.is_planar())
 
 
-fn test_nurbs_area() raises:
+def test_nurbs_area() raises:
     var surf = _make_bilinear_nurbs()
     var a = surf.area()
     # Unit square has area 1.0
     assert_true(math.isclose(a, 1.0, atol=1e-3, rtol=0.0))
 
 
-fn test_nurbs_normal() raises:
+def test_nurbs_normal() raises:
     var surf = _make_bilinear_nurbs()
     var n = surf.normal_at(0.5, 0.5)
     # Normal of XY plane is Z
     assert_true(math.isclose(math.abs(n.z), 1.0, atol=1e-6, rtol=0.0))
 
 
-fn test_nurbs_repr() raises:
+def test_nurbs_repr() raises:
     var surf = _make_bilinear_nurbs()
     var r = surf.__repr__()
     assert_true(len(r) > 0)
 
-fn main() raises:
+def main() raises:
     test_planar_surface_area()
     test_planar_surface_normal()
     test_planar_surface_point_at_center()

@@ -1,7 +1,7 @@
 from geokernel import Vector3, Matrix3
 
 
-fn main():
+def main():
     r1 = Vector3(1, 2, -1)
     r2 = Vector3(3, 2, 0)
     r3 = Vector3(-4, 0, 2)

@@ -2,7 +2,7 @@ from geokernel import FType, Point, Face, Shell, Vector3
 from geokernel.triangulation import Triangulation
 
 
-fn shell_to_stl_ascii(shell: Shell) -> String:
+def shell_to_stl_ascii(shell: Shell) -> String:
     """Export a Shell to ASCII STL format.
 
     Faces are triangulated using fan triangulation before export.
@@ -62,7 +62,7 @@ fn shell_to_stl_ascii(shell: Shell) -> String:
     return result
 
 
-fn export_stl_ascii(faces: List[Face], solid_name: String = "geokernel") -> String:
+def export_stl_ascii(faces: List[Face], solid_name: String = "geokernel") -> String:
     """Export triangulated faces to ASCII STL format.
     Non-triangle faces are fan-triangulated first.
 
@@ -117,12 +117,12 @@ fn export_stl_ascii(faces: List[Face], solid_name: String = "geokernel") -> Stri
     return result
 
 
-fn _parse_float(s: String) raises -> FType:
+def _parse_float(s: String) raises -> FType:
     """Parse a float from a string token."""
     return FType(atof(s.strip()))
 
 
-fn import_stl_ascii(content: String) raises -> List[Face]:
+def import_stl_ascii(content: String) raises -> List[Face]:
     """Parse ASCII STL string into list of triangle faces.
     Each facet becomes one Face(3 points).
     """

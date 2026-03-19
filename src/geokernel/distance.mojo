@@ -2,7 +2,7 @@ from geokernel import FType, Point, Vector3, Line, Face, Shell
 from std.math import sqrt
 
 
-fn point_to_point(p1: Point, p2: Point) -> FType:
+def point_to_point(p1: Point, p2: Point) -> FType:
     """Euclidean distance between two points."""
     var dx = p2.x - p1.x
     var dy = p2.y - p1.y
@@ -10,7 +10,7 @@ fn point_to_point(p1: Point, p2: Point) -> FType:
     return sqrt(dx * dx + dy * dy + dz * dz)
 
 
-fn point_to_line(p: Point, line: Line) -> FType:
+def point_to_line(p: Point, line: Line) -> FType:
     """Perpendicular distance from point to infinite line.
 
     Math: project (p - line.p1) onto direction d, then compute
@@ -26,7 +26,7 @@ fn point_to_line(p: Point, line: Line) -> FType:
     return point_to_point(p, closest)
 
 
-fn point_to_segment(p: Point, line: Line) -> FType:
+def point_to_segment(p: Point, line: Line) -> FType:
     """Distance from point to line SEGMENT (clamped to endpoints).
 
     Math: same projection as point_to_line but t is clamped to [0, 1].
@@ -46,7 +46,7 @@ fn point_to_segment(p: Point, line: Line) -> FType:
     return point_to_point(p, closest)
 
 
-fn point_to_plane(p: Point, plane_pt: Point, plane_normal: Vector3) -> FType:
+def point_to_plane(p: Point, plane_pt: Point, plane_normal: Vector3) -> FType:
     """Signed distance from point to plane. Positive = same side as normal.
 
     Math: signed_dist = dot(p - plane_pt, n_hat)
@@ -56,7 +56,7 @@ fn point_to_plane(p: Point, plane_pt: Point, plane_normal: Vector3) -> FType:
     return w.dot(n)
 
 
-fn point_to_face(p: Point, face: Face) -> FType:
+def point_to_face(p: Point, face: Face) -> FType:
     """Distance from point to face.
 
     If perpendicular projection lies inside the polygon → distance to plane.
@@ -75,7 +75,7 @@ fn point_to_face(p: Point, face: Face) -> FType:
     return min_dist
 
 
-fn segment_to_segment(l1: Line, l2: Line) -> FType:
+def segment_to_segment(l1: Line, l2: Line) -> FType:
     """Minimum distance between two line segments.
 
     Math: parametric minimization of ||P(s) - Q(t)||^2 over s,t in [0,1].
@@ -157,7 +157,7 @@ fn segment_to_segment(l1: Line, l2: Line) -> FType:
     return point_to_point(p_closest, q_closest)
 
 
-fn face_to_face(f1: Face, f2: Face) -> FType:
+def face_to_face(f1: Face, f2: Face) -> FType:
     """Minimum distance between two faces.
     If they intersect, returns 0.0.
     Otherwise, minimum of distances from each vertex of f1 to f2, and vice versa."""
@@ -180,12 +180,12 @@ fn face_to_face(f1: Face, f2: Face) -> FType:
     return min_dist
 
 
-fn face_to_point(f: Face, p: Point) -> FType:
+def face_to_point(f: Face, p: Point) -> FType:
     """Alias for point_to_face(p, f) — for symmetry."""
     return point_to_face(p, f)
 
 
-fn shell_to_point(shell: Shell, p: Point) -> FType:
+def shell_to_point(shell: Shell, p: Point) -> FType:
     """Minimum distance from point to nearest face in shell."""
     var min_dist = FType(1.0e18)
     for i in range(len(shell.faces)):
@@ -195,7 +195,7 @@ fn shell_to_point(shell: Shell, p: Point) -> FType:
     return min_dist
 
 
-fn shell_to_shell(s1: Shell, s2: Shell) -> FType:
+def shell_to_shell(s1: Shell, s2: Shell) -> FType:
     """Minimum distance between two shells.
     Iterate face pairs, return minimum face_to_face distance."""
     var min_dist = FType(1.0e18)

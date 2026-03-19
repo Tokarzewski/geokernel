@@ -1,7 +1,7 @@
 from geokernel import Point, Wire, Face, Shell, Quaternion, Vector3, Line, Plane, Triangulation
 
 
-fn main():
+def main():
     # Task 1: Quaternion rotate
     var q = Quaternion.from_axis_angle(Vector3(0, 0, 1), 1.5707963)
     var p = Point(1.0, 0.0, 0.0)

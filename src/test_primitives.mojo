@@ -1,10 +1,10 @@
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 from geokernel import FType, Point, Face
 from geokernel import sphere_faces, cylinder_faces, cone_faces
 from math import sqrt, pi
 
 
-fn test_sphere_face_count() raises:
+def test_sphere_face_count() raises:
     # u_segments=8, v_segments=6:
     # top cap: 8 triangles, bottom cap: 8 triangles, middle: 4 rows * 8 quads = 32 → total 48
     var center = Point(0.0, 0.0, 0.0)
@@ -12,14 +12,14 @@ fn test_sphere_face_count() raises:
     assert_true(len(faces) > 30)
 
 
-fn test_sphere_all_faces_min_3_vertices() raises:
+def test_sphere_all_faces_min_3_vertices() raises:
     var center = Point(0.0, 0.0, 0.0)
     var faces = sphere_faces(center, 1.0, 8, 6)
     for i in range(len(faces)):
         assert_true(faces[i].num_vertices() >= 3)
 
 
-fn test_sphere_vertices_on_surface() raises:
+def test_sphere_vertices_on_surface() raises:
     # All vertices of a unit sphere centered at (1,2,3) must lie exactly r from center.
     var cx: FType = 1.0
     var cy: FType = 2.0
@@ -39,21 +39,21 @@ fn test_sphere_vertices_on_surface() raises:
             assert_true(abs(dist - r) < tol)
 
 
-fn test_cylinder_face_count() raises:
+def test_cylinder_face_count() raises:
     # segments=4: 4 side quads + 4 bottom tris + 4 top tris = 12
     var center = Point(0.0, 0.0, 0.0)
     var faces = cylinder_faces(center, 1.0, 2.0, 4)
     assert_equal(len(faces), 12)
 
 
-fn test_cylinder_all_faces_min_3_vertices() raises:
+def test_cylinder_all_faces_min_3_vertices() raises:
     var center = Point(0.0, 0.0, 0.0)
     var faces = cylinder_faces(center, 1.0, 2.0, 8)
     for i in range(len(faces)):
         assert_true(faces[i].num_vertices() >= 3)
 
 
-fn test_cylinder_top_z() raises:
+def test_cylinder_top_z() raises:
     # Top ring vertices must have z = center.z + height
     var cz: FType = 5.0
     var h: FType = 3.0
@@ -66,21 +66,21 @@ fn test_cylinder_top_z() raises:
         assert_true(abs(top_v.z - (cz + h)) < 1e-9)
 
 
-fn test_cone_face_count() raises:
+def test_cone_face_count() raises:
     # segments=4: 4 side tris + 4 base tris = 8
     var center = Point(0.0, 0.0, 0.0)
     var faces = cone_faces(center, 1.0, 1.0, 4)
     assert_equal(len(faces), 8)
 
 
-fn test_cone_all_faces_min_3_vertices() raises:
+def test_cone_all_faces_min_3_vertices() raises:
     var center = Point(0.0, 0.0, 0.0)
     var faces = cone_faces(center, 1.0, 1.0, 8)
     for i in range(len(faces)):
         assert_true(faces[i].num_vertices() >= 3)
 
 
-fn test_cone_apex_on_axis() raises:
+def test_cone_apex_on_axis() raises:
     # Apex (3rd vertex of side triangles) must be at (cx, cy, cz + height)
     var cx: FType = 0.0; var cy: FType = 0.0; var cz: FType = 0.0
     var h: FType = 3.0
@@ -94,7 +94,7 @@ fn test_cone_apex_on_axis() raises:
         assert_true(abs(apex.z - (cz + h)) < 1e-9)
 
 
-fn main() raises:
+def main() raises:
     test_sphere_face_count()
     print("PASS test_sphere_face_count")
 

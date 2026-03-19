@@ -1,23 +1,23 @@
 from geokernel import FType, Point, Line, Wire, Vector3, Cell, Transform, Quaternion, Plane
-from math import sqrt
+from std.math import sqrt
 
 
 struct Face(Copyable, Movable, ImplicitlyCopyable):
     var points: List[Point]
 
-    fn __init__(out self, points: List[Point]):
+    def __init__(out self, points: List[Point]):
         self.points = points.copy()
         if len(self.points) > 0 and self.points[0] != self.points[-1]:
             self.points.append(self.points[0])
 
 
-    fn __copyinit__(out self, copy: Self):
+    def __init__(out self, *, copy: Self):
         self.points = copy.points.copy()
 
-    fn __moveinit__(out self, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         self.points = take.points^
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         var result: String = "Face("
         for i in range(len(self.points)):
             if i > 0:
@@ -25,54 +25,54 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
             result += self.points[i].__repr__()
         return result + ")"
 
-    fn reverse(var self) -> Self:
+    def reverse(var self) -> Self:
         self.points.reverse()
         return self
 
-    fn num_vertices(self) -> Int:
+    def num_vertices(self) -> Int:
         return len(self.points) - 1
 
-    fn num_edges(self) -> Int:
+    def num_edges(self) -> Int:
         return len(self.points) - 1
 
-    fn get_vertex(self, i: Int) -> Point:
+    def get_vertex(self, i: Int) -> Point:
         return self.points[i]
 
-    fn get_edge(self, i: Int) -> Line:
+    def get_edge(self, i: Int) -> Line:
         return Line(self.points[i], self.points[(i + 1)])
 
-    fn wire(self) -> Wire:
+    def wire(self) -> Wire:
         return Wire(self.points)
 
-    fn move(self, dx: FType, dy: FType, dz: FType) -> Self:
+    def move(self, dx: FType, dy: FType, dz: FType) -> Self:
         var moved_points = List[Point]()
         for i in range(len(self.points)):
             moved_points.append(self.points[i].move(dx, dy, dz))
         return Self(moved_points)
 
-    fn move_by_vector(self, v: Vector3) -> Self:
+    def move_by_vector(self, v: Vector3) -> Self:
         return self.move(v.x, v.y, v.z)
 
-    fn transform(self, t: Transform) -> Self:
+    def transform(self, t: Transform) -> Self:
         """Apply a Transform to all points of the face."""
         var transformed_points = List[Point]()
         for i in range(len(self.points)):
             transformed_points.append(self.points[i].transform(t))
         return Self(transformed_points)
 
-    fn rotate(self, q: Quaternion) -> Self:
+    def rotate(self, q: Quaternion) -> Self:
         var rotated = List[Point]()
         for i in range(len(self.points)):
             rotated.append(self.points[i].rotate(q))
         return Self(rotated)
 
-    fn perimeter(self) -> FType:
+    def perimeter(self) -> FType:
         var total_length: FType = 0
         for i in range(self.num_edges()):
             total_length += self.get_edge(i).length()
         return total_length
 
-    fn area(self) -> FType:
+    def area(self) -> FType:
         var ref_point = self.points[0]
         var normal = Vector3(0, 0, 0)
 
@@ -83,7 +83,7 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
 
         return normal.length() / 2.0
 
-    fn normal(self) -> Vector3:
+    def normal(self) -> Vector3:
         var p1 = self.points[0]
         var p2 = self.points[1]
         var v1 = Vector3.from_points(p1, p2)
@@ -96,7 +96,7 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
                 return cross_product.normalize()
         return Vector3(0, 0, 0)
 
-    fn centroid(self) -> Point:
+    def centroid(self) -> Point:
         var weighted_sum = Point(0, 0, 0)
         var total_area: FType = 0.0
 
@@ -114,7 +114,7 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
 
         return weighted_sum / total_area
 
-    fn is_planar(self, atol: FType = 1e-10) -> Bool:
+    def is_planar(self, atol: FType = 1e-10) -> Bool:
         """Check if all vertices lie on the same plane."""
         if self.num_vertices() <= 3:
             return True
@@ -126,7 +126,7 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
                 return False
         return True
 
-    fn project_point(self, p: Point) -> Point:
+    def project_point(self, p: Point) -> Point:
         """Project 3D point onto face plane."""
         var n = self.normal()
         var origin = self.points[0]
@@ -138,7 +138,7 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
             p.z - n.z * dist,
         )
 
-    fn contains_point_2d(self, p: Point, atol: FType = 1e-10) -> Bool:
+    def contains_point_2d(self, p: Point, atol: FType = 1e-10) -> Bool:
         """Point-in-polygon test using ray casting (2D projection).
         Projects all points onto the face plane first."""
         var n = self.normal().normalize()
@@ -183,7 +183,7 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
             j = i
         return inside
 
-    fn triangulate(self) -> List[Face]:
+    def triangulate(self) -> List[Face]:
         """Fan triangulation. Returns list of triangle faces."""
         var result = List[Face]()
         var n = self.num_vertices()
@@ -195,7 +195,7 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
             result.append(Face(tri_pts))
         return result.copy()
 
-    fn push_pull(self, distance: Float64) -> Shell:
+    def push_pull(self, distance: Float64) -> Shell:
         """Extrude this face along its normal by the given distance, returning the resulting Shell."""
         var n = self.normal()
         var v = n * distance
@@ -208,11 +208,11 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
             faces.append(sides.faces[i])
         return Shell(faces)
 
-    fn intersects_line(self, l: Line) -> Bool:
+    def intersects_line(self, l: Line) -> Bool:
         """True if the line segment intersects this face."""
         return self.intersect_line(l) is not None
 
-    fn intersect_line(self, l: Line) -> Optional[Point]:
+    def intersect_line(self, l: Line) -> Optional[Point]:
         """Intersection point of a line segment with this face plane, or None."""
         var n = self.normal()
         var denom = n.dot(l.direction())
@@ -227,11 +227,11 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
             return hit
         return None
 
-    fn extrude(self, v: Vector3) -> Cell:
+    def extrude(self, v: Vector3) -> Cell:
         var faces = List[Face]()
         faces.append(self)  # original polygon
         faces.append(self.move_by_vector(v))  # moved polygon
-        faces.extend(self.wire().extrude(v).faces)  # sides
+        faces.extend(self.wire().extrude(v).faces.copy())  # sides
         return Cell(faces)
 
 
@@ -239,14 +239,14 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
 # Face-face intersection
 # ---------------------------------------------------------------------------
 
-fn _normals_parallel_ff(a: Face, b: Face, atol: FType = 1e-10) -> Bool:
+def _normals_parallel_ff(a: Face, b: Face, atol: FType = 1e-10) -> Bool:
     """Return True if the two face normals are parallel (same or opposite direction)."""
     var na = a.normal().normalize()
     var nb = b.normal().normalize()
     return na.cross(nb).length() < atol
 
 
-fn _coplanar_faces(a: Face, b: Face, atol: FType = 1e-10) -> Bool:
+def _coplanar_faces(a: Face, b: Face, atol: FType = 1e-10) -> Bool:
     """Return True if a and b lie on the same infinite plane."""
     if not _normals_parallel_ff(a, b, atol):
         return False
@@ -255,7 +255,7 @@ fn _coplanar_faces(a: Face, b: Face, atol: FType = 1e-10) -> Bool:
     return abs(na.dot(d)) < atol
 
 
-fn _clip_polygon_by_halfplane(
+def _clip_polygon_by_halfplane(
     pts: List[Point],
     edge_a: Point,
     edge_b: Point,
@@ -269,18 +269,18 @@ fn _clip_polygon_by_halfplane(
     if n == 0:
         return output^
 
-    fn project2d(p: Point) -> Tuple[FType, FType]:
+    def project2d(p: Point) -> Tuple[FType, FType]:
         var dv = Vector3.from_points(origin, p)
         return (dv.dot(u), dv.dot(v))
 
-    fn inside(p: Point) -> Bool:
+    def inside(p: Point) -> Bool:
         var pp = project2d(p)
         var pa = project2d(edge_a)
         var pb = project2d(edge_b)
         var cross = (pb[0] - pa[0]) * (pp[1] - pa[1]) - (pb[1] - pa[1]) * (pp[0] - pa[0])
         return cross >= -1e-15
 
-    fn intersect_edge(p1: Point, p2: Point) -> Point:
+    def intersect_edge(p1: Point, p2: Point) -> Point:
         var a2d = project2d(p1)
         var b2d = project2d(p2)
         var ea = project2d(edge_a)
@@ -324,7 +324,7 @@ fn _clip_polygon_by_halfplane(
     return output^
 
 
-fn _build_2d_basis(normal: Vector3) -> Tuple[Vector3, Vector3]:
+def _build_2d_basis(normal: Vector3) -> Tuple[Vector3, Vector3]:
     """Build an orthonormal 2D basis (u, v) for the given normal."""
     var n = normal.normalize()
     var ref_v = Vector3(0.0, 0.0, 1.0)
@@ -335,13 +335,13 @@ fn _build_2d_basis(normal: Vector3) -> Tuple[Vector3, Vector3]:
     return (u, v)
 
 
-fn _project_2d(p: Point, origin: Point, u: Vector3, v: Vector3) -> Tuple[FType, FType]:
+def _project_2d(p: Point, origin: Point, u: Vector3, v: Vector3) -> Tuple[FType, FType]:
     """Project 3D point onto local 2D coords."""
     var d = Vector3.from_points(origin, p)
     return (d.dot(u), d.dot(v))
 
 
-fn intersect_faces(f1: Face, f2: Face, atol: FType = 1e-10) -> Optional[Wire]:
+def intersect_faces(f1: Face, f2: Face, atol: FType = 1e-10) -> Optional[Wire]:
     """Compute the intersection of two faces.
 
     Cases:
@@ -443,7 +443,7 @@ fn intersect_faces(f1: Face, f2: Face, atol: FType = 1e-10) -> Optional[Wire]:
 
         # Parametrise: points on intersection line = pt_on_line + t * line_dir
         # For each face, project its edges onto the line and collect t-intervals
-        fn face_t_interval(face: Face) -> Optional[Tuple[FType, FType]]:
+        def face_t_interval(face: Face) -> Optional[Tuple[FType, FType]]:
             """Compute the parameter interval [t_min, t_max] where the intersection
             line passes through the face (via edge crossings)."""
             var t_vals = List[FType]()
@@ -499,7 +499,7 @@ fn intersect_faces(f1: Face, f2: Face, atol: FType = 1e-10) -> Optional[Wire]:
         # For f1: clip its edges against plane of f2 → collect t-values on line_dir
         # For f2: clip its edges against plane of f1 → collect t-values on line_dir
 
-        fn collect_edge_crossings(face: Face, plane_n: Vector3, plane_d: FType) -> List[FType]:
+        def collect_edge_crossings(face: Face, plane_n: Vector3, plane_d: FType) -> List[FType]:
             """Find t-params where face edges cross the given plane."""
             var ts = List[FType]()
             var nv = face.num_vertices()

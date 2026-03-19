@@ -3,11 +3,11 @@ from math import pi, cos, sin
 from geokernel import Units
 
 
-fn print_separator():
+def print_separator():
     print("\n" + "-----------------------------" + "\n")
 
 
-fn main() raises:
+def main() raises:
     print("Quaternion Functionality Showcase")
     print_separator()
 

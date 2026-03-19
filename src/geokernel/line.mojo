@@ -5,72 +5,68 @@ struct Line(Copyable, Movable, ImplicitlyCopyable):
     var p1: Point
     var p2: Point
 
-    fn __init__(out self, p1: Point, p2: Point):
+    def __init__(out self, p1: Point, p2: Point):
         self.p1 = p1
         self.p2 = p2
 
 
-    fn __copyinit__(out self, copy: Self):
-        self.p1 = copy.p1
-        self.p2 = copy.p2
-
-    fn __moveinit__(out self, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         self.p1 = take.p1
         self.p2 = take.p2
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         return "Line(" + self.p1.__repr__() + ", " + self.p2.__repr__() + ")"
 
-    fn direction(self) -> Vector3:
+    def direction(self) -> Vector3:
         return Vector3.from_point(self.p2 - self.p1)
 
-    fn length(self) -> FType:
+    def length(self) -> FType:
         return self.direction().length()
 
-    fn point_at(self, t: FType) -> Point:
+    def point_at(self, t: FType) -> Point:
         return self.p1 + (self.p2 - self.p1) * t
 
-    fn startpoint(self) -> Point:
+    def startpoint(self) -> Point:
         return self.p1
 
-    fn start_point(self) -> Point:
+    def start_point(self) -> Point:
         return self.p1
 
-    fn midpoint(self) -> Point:
+    def midpoint(self) -> Point:
         return self.point_at(t=0.5)
 
-    fn endpoint(self) -> Point:
+    def endpoint(self) -> Point:
         return self.p2
 
-    fn end_point(self) -> Point:
+    def end_point(self) -> Point:
         return self.p2
 
-    fn is_closed(self) -> Bool:
+    def is_closed(self) -> Bool:
         return self.p1 == self.p2
 
-    fn reverse(self) -> Self:
+    def reverse(self) -> Self:
         return Self(self.p2, self.p1)
 
-    fn is_parallel(self, other: Self, atol: FType = 1e-15) -> Bool:
+    def is_parallel(self, other: Self, atol: FType = 1e-15) -> Bool:
         var dir1 = self.direction().normalize()
         var dir2 = other.direction().normalize()
         var cross_product = dir1.cross(dir2)
         return cross_product.length() < atol
 
-    fn move(self, dx: FType, dy: FType, dz: FType) -> Self:
+    def move(self, dx: FType, dy: FType, dz: FType) -> Self:
         return Self(self.p1.move(dx, dy, dz), self.p2.move(dx, dy, dz))
 
-    fn move_by_vector(self, v: Vector3) -> Self:
+    def move_by_vector(self, v: Vector3) -> Self:
         return self.move(v.x, v.y, v.z)
 
-    fn extrude(self, v: Vector3) -> Face:
+    def extrude(self, v: Vector3) -> Face:
         var line2 = self.move_by_vector(v)
         return Face([self.p1, self.p2, line2.p2, line2.p1])
 
-    fn isclose(self, other: Line, tol: Float64 = 1e-9) -> Bool:
+    def isclose(self, other: Line, tol: Float64 = 1e-9) -> Bool:
         return self.p1.isclose(other.p1, tol) and self.p2.isclose(other.p2, tol)
 
-    fn distance_to_point(self, p: Point) -> FType:
+    def distance_to_point(self, p: Point) -> FType:
         var d = self.direction()
         var len_sq = d.x * d.x + d.y * d.y + d.z * d.z
         if len_sq == 0.0:
@@ -90,7 +86,7 @@ struct Line(Copyable, Movable, ImplicitlyCopyable):
         var ez = p.z - closest.z
         return (ex * ex + ey * ey + ez * ez) ** 0.5
 
-    fn project_point(self, p: Point) -> Point:
+    def project_point(self, p: Point) -> Point:
         var d = self.direction()
         var len_sq = d.x * d.x + d.y * d.y + d.z * d.z
         if len_sq == 0.0:
@@ -103,7 +99,7 @@ struct Line(Copyable, Movable, ImplicitlyCopyable):
             t = 1.0
         return self.point_at(t)
 
-    fn intersects(self, other: Self, atol: FType = 1e-15) -> Tuple[Bool, Point]:
+    def intersects(self, other: Self, atol: FType = 1e-15) -> Tuple[Bool, Point]:
         """
         Check if lines intersects in 3D space.
         Returns a tuple containing a boolean (True if lines intersect) and the point of intersection.

@@ -1,6 +1,6 @@
 from geokernel import FType, Point, Vector3, Plane, Face
 
-alias SLICE_ATOL: FType = 1e-10
+comptime SLICE_ATOL: FType = 1e-10
 
 
 struct FacePair(Movable):
@@ -8,16 +8,13 @@ struct FacePair(Movable):
     var above: List[Face]
     var below: List[Face]
 
-    fn __init__(out self):
+    def __init__(out self):
         self.above = List[Face]()
         self.below = List[Face]()
 
-    fn __moveinit__(out self, deinit take: Self):
-        self.above = take.above^
-        self.below = take.below^
 
 
-fn classify_point(p: Point, plane: Plane) -> Int:
+def classify_point(p: Point, plane: Plane) -> Int:
     """Returns 1 if above plane, -1 if below, 0 if on plane (within SLICE_ATOL).
 
     Algorithm:
@@ -40,7 +37,7 @@ fn classify_point(p: Point, plane: Plane) -> Int:
         return 0
 
 
-fn _intersect_segment_plane(a: Point, b: Point, plane: Plane) -> Point:
+def _intersect_segment_plane(a: Point, b: Point, plane: Plane) -> Point:
     """Compute the intersection of segment [a,b] with the plane.
 
     Algorithm (parametric line):
@@ -68,7 +65,7 @@ fn _intersect_segment_plane(a: Point, b: Point, plane: Plane) -> Point:
     return Point(a.x + t * db_x, a.y + t * db_y, a.z + t * db_z)
 
 
-fn slice_face_by_plane(face: Face, plane: Plane) -> FacePair:
+def slice_face_by_plane(face: Face, plane: Plane) -> FacePair:
     """Split a face by a plane. Returns FacePair(above_faces, below_faces).
 
     Uses Sutherland-Hodgman-style vertex classification:
@@ -164,7 +161,7 @@ fn slice_face_by_plane(face: Face, plane: Plane) -> FacePair:
     return pair^
 
 
-fn slice_faces_by_plane(faces: List[Face], plane: Plane) -> FacePair:
+def slice_faces_by_plane(faces: List[Face], plane: Plane) -> FacePair:
     """Slice a collection of faces (e.g. a cell's faces) by a plane.
     Returns FacePair(above_faces, below_faces).
 

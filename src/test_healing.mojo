@@ -5,14 +5,14 @@ from geokernel import (
 )
 
 
-fn _dist_sq(a: Point, b: Point) -> Float64:
+def _dist_sq(a: Point, b: Point) -> Float64:
     var dx = a.x - b.x
     var dy = a.y - b.y
     var dz = a.z - b.z
     return dx * dx + dy * dy + dz * dz
 
 
-fn test_close_gaps():
+def test_close_gaps() raises:
     """Two adjacent faces that ALMOST share an edge but one vertex is off by < tol.
     After close_shell_gaps, the gap should be closed."""
     # Face A: unit square on XY plane
@@ -69,7 +69,7 @@ fn test_close_gaps():
         print("FAIL: non-boundary vertex moved")
 
 
-fn test_no_gaps():
+def test_no_gaps() raises:
     """Shell with no gaps should be returned unchanged."""
     var pts_a = List[Point]()
     pts_a.append(Point(0.0, 0.0, 0.0))
@@ -95,7 +95,7 @@ fn test_no_gaps():
     print("PASS: no-gap shell handled")
 
 
-fn main():
+def main() raises:
     test_close_gaps()
     test_no_gaps()
     print("All healing tests done!")

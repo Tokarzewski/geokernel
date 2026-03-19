@@ -13,28 +13,28 @@ from geokernel import Point, Wire, Vector3
 from math import sqrt, abs
 
 
-fn assert_true(cond: Bool, name: String):
+def assert_true(cond: Bool, name: String):
     if cond:
         print("  PASS:", name)
     else:
         print("  FAIL:", name)
 
 
-fn assert_close(val: Float64, expected: Float64, atol: Float64, name: String):
+def assert_close(val: Float64, expected: Float64, atol: Float64, name: String):
     if abs(val - expected) <= atol:
         print("  PASS:", name, "=", val)
     else:
         print("  FAIL:", name, "expected", expected, "got", val, "diff", abs(val - expected))
 
 
-fn assert_equal(val: Int, expected: Int, name: String):
+def assert_equal(val: Int, expected: Int, name: String):
     if val == expected:
         print("  PASS:", name, "=", val)
     else:
         print("  FAIL:", name, "expected", expected, "got", val)
 
 
-fn main():
+def main() raises:
     print("=== test_wire_advanced ===")
     var atol: Float64 = 1e-10
 

@@ -1,9 +1,9 @@
 from geokernel import FType, Point, Face, Shell
 from geokernel.triangulation import Triangulation
-from math import abs as fabs
+from std.math import abs as fabs
 
 
-fn shell_to_obj(shell: Shell) -> String:
+def shell_to_obj(shell: Shell) -> String:
     """Export a Shell to Wavefront OBJ format.
 
     Faces are triangulated before export.
@@ -28,14 +28,14 @@ fn shell_to_obj(shell: Shell) -> String:
             pt.append(Float64(p.x))
             pt.append(Float64(p.y))
             pt.append(Float64(p.z))
-            all_points.append(pt)
+            all_points.append(pt^)
 
         for ti in range(len(tris)):
             var tri = List[Int]()
             tri.append(tris[ti][0] + vertex_offset + 1)
             tri.append(tris[ti][1] + vertex_offset + 1)
             tri.append(tris[ti][2] + vertex_offset + 1)
-            triangles.append(tri)
+            triangles.append(tri^)
 
         vertex_offset += face.num_vertices()
 
@@ -67,7 +67,7 @@ fn shell_to_obj(shell: Shell) -> String:
     return result
 
 
-fn faces_to_obj(faces: List[Face]) -> String:
+def faces_to_obj(faces: List[Face]) -> String:
     """Export a list of Faces to Wavefront OBJ format.
 
     Faces are triangulated before export.
@@ -89,14 +89,14 @@ fn faces_to_obj(faces: List[Face]) -> String:
             pt.append(Float64(p.x))
             pt.append(Float64(p.y))
             pt.append(Float64(p.z))
-            all_points.append(pt)
+            all_points.append(pt^)
 
         for ti in range(len(tris)):
             var tri = List[Int]()
             tri.append(tris[ti][0] + vertex_offset + 1)
             tri.append(tris[ti][1] + vertex_offset + 1)
             tri.append(tris[ti][2] + vertex_offset + 1)
-            triangles.append(tri)
+            triangles.append(tri^)
 
         vertex_offset += face.num_vertices()
 
@@ -127,7 +127,7 @@ fn faces_to_obj(faces: List[Face]) -> String:
     return result
 
 
-fn _split_line(line: String) -> List[String]:
+def _split_line(line: String) -> List[String]:
     """Split a line by whitespace into tokens."""
     var tokens = List[String]()
     var current = String("")
@@ -144,7 +144,7 @@ fn _split_line(line: String) -> List[String]:
     return tokens^
 
 
-fn _pts_equal(a: Point, b: Point, tol: FType = 1e-10) -> Bool:
+def _pts_equal(a: Point, b: Point, tol: FType = 1e-10) -> Bool:
     """Check if two points are equal within tolerance."""
     return (
         fabs(a.x - b.x) < tol
@@ -153,7 +153,7 @@ fn _pts_equal(a: Point, b: Point, tol: FType = 1e-10) -> Bool:
     )
 
 
-fn _find_vertex(vertices: List[Point], p: Point, tol: FType = 1e-10) -> Int:
+def _find_vertex(vertices: List[Point], p: Point, tol: FType = 1e-10) -> Int:
     """Return 0-based index of p in vertices (by coordinate), or -1 if not found."""
     for i in range(len(vertices)):
         if _pts_equal(vertices[i], p, tol):
@@ -161,7 +161,7 @@ fn _find_vertex(vertices: List[Point], p: Point, tol: FType = 1e-10) -> Int:
     return -1
 
 
-fn export_obj(faces: List[Face]) -> String:
+def export_obj(faces: List[Face]) -> String:
     """Export list of faces to OBJ format string.
 
     Format:
@@ -198,7 +198,7 @@ fn export_obj(faces: List[Face]) -> String:
     return result
 
 
-fn import_obj(content: String) raises -> List[Face]:
+def import_obj(content: String) raises -> List[Face]:
     """Parse OBJ format string into list of faces.
 
     Handles: v lines, f lines.

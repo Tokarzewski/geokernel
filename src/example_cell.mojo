@@ -1,7 +1,7 @@
 from geokernel import Point, Face, Cell, LP, AABB
 
 
-fn main():
+def main():
     p1 = Point(0, 0, 0)
     p2 = Point(0, 1, 0)
     p3 = Point(1, 1, 0)

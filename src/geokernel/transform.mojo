@@ -17,12 +17,7 @@ struct Transform(Copyable, Movable, ImplicitlyCopyable):
         self.rotation = matrix4.rotation()
 
 
-    fn __copyinit__(out self, copy: Self):
-        self.movement = copy.movement
-        self.scale = copy.scale
-        self.rotation = copy.rotation
-
-    fn __moveinit__(out self, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         self.movement = take.movement
         self.scale = take.scale
         self.rotation = take.rotation

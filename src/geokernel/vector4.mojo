@@ -1,8 +1,8 @@
 from geokernel import FType, Point
-from math import sqrt
+from std.math import sqrt
 
 
-struct Vector4(Representable):
+struct Vector4(Copyable, Movable, ImplicitlyCopyable, Writable):
     """Vector - with 4 dimensions and Ftype precision."""
 
     var x: FType
@@ -10,46 +10,40 @@ struct Vector4(Representable):
     var z: FType
     var w: FType
 
-    fn __init__(out self, x: FType, y: FType, z: FType, w: FType):
+    def __init__(out self, x: FType, y: FType, z: FType, w: FType):
         self.x = x
         self.y = y
         self.z = z
         self.w = w
 
 
-    fn __copyinit__(out self, copy: Self):
-        self.x = copy.x
-        self.y = copy.y
-        self.z = copy.z
-        self.w = copy.w
-
-    fn __moveinit__(out self, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         self.x = take.x
         self.y = take.y
         self.z = take.z
         self.w = take.w
 
     @staticmethod
-    fn zero() -> Self:
+    def zero() -> Self:
         return Self(0, 0, 0, 0)
 
     @staticmethod
-    fn unitX() -> Self:
+    def unitX() -> Self:
         return Self(1, 0, 0, 0)
 
     @staticmethod
-    fn unitY() -> Self:
+    def unitY() -> Self:
         return Self(0, 1, 0, 0)
 
     @staticmethod
-    fn unitZ() -> Self:
+    def unitZ() -> Self:
         return Self(0, 0, 1, 0)
 
     @staticmethod
-    fn unitW() -> Self:
+    def unitW() -> Self:
         return Self(0, 0, 0, 1)
 
-    fn __add__(self, other: Self) -> Self:
+    def __add__(self, other: Self) -> Self:
         return Self(
             self.x + other.x,
             self.y + other.y,
@@ -57,10 +51,10 @@ struct Vector4(Representable):
             self.w + other.w,
         )
 
-    fn __iadd__(mut self, other: Self):
+    def __iadd__(mut self, other: Self):
         self = self.__add__(other)
 
-    fn __sub__(self, other: Self) -> Self:
+    def __sub__(self, other: Self) -> Self:
         return Self(
             self.x - other.x,
             self.y - other.y,
@@ -68,38 +62,31 @@ struct Vector4(Representable):
             self.w - other.w,
         )
 
-    fn __isub__(mut self, other: Self):
+    def __isub__(mut self, other: Self):
         self = self.__sub__(other)
 
-    fn __mul__(self, scalar: FType) -> Self:
+    def __mul__(self, scalar: FType) -> Self:
         return Self(self.x * scalar, self.y * scalar, self.z * scalar, self.w * scalar)
 
-    fn __truediv__(self, scalar: FType) -> Self:
+    def __truediv__(self, scalar: FType) -> Self:
         return Self(self.x / scalar, self.y / scalar, self.z / scalar, self.w / scalar)
 
-    fn __repr__(self) -> String:
-        return (
-            "Vector4("
-            + String(self.x)
-            + ", "
-            + String(self.y)
-            + ", "
-            + String(self.z)
-            + ", "
-            + String(self.w)
-            + ")"
-        )
+    def write_to(self, mut writer: Some[Writer]):
+        writer.write("Vector4(", self.x, ", ", self.y, ", ", self.z, ", ", self.w, ")")
 
-    fn components(self) -> (FType, FType, FType, FType):
+    def __repr__(self) -> String:
+        return String.write(self)
+
+    def components(self) -> Tuple[FType, FType, FType, FType]:
         return (self.x, self.y, self.z, self.w)
 
-    fn reverse(self) -> Self:
+    def reverse(self) -> Self:
         return Self(-self.x, -self.y, -self.z, -self.w)
 
-    fn inverse(self) -> Self:
+    def inverse(self) -> Self:
         return Self(1 / self.x, 1 / self.y, 1 / self.z, 1 / self.w)
 
-    fn dot(self, other: Self) -> FType:
+    def dot(self, other: Self) -> FType:
         """
         The dot product is a scalar value that is the sum of the products of
         the corresponding entries of two vectors. It's the product of the
@@ -112,13 +99,13 @@ struct Vector4(Representable):
         result += self.w * other.w
         return result
 
-    fn length(self) -> FType:
+    def length(self) -> FType:
         return sqrt(self.dot(self))
 
-    fn normalize(self) -> Self:
+    def normalize(self) -> Self:
         scale = 1 / self.length()
         return self * scale
 
-    fn lerp(self, other: Self, t: FType) -> Self:
+    def lerp(self, other: Self, t: FType) -> Self:
         """Create a new vector that is a linear blend of two vectors."""
         return self + (other - self) * t

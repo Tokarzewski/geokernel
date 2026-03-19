@@ -1,25 +1,25 @@
-from testing import assert_equal, assert_true, assert_false
+from std.testing import assert_equal, assert_true, assert_false
 from geokernel import Point, Face
 
 
-def test_area_for_concave():
+def test_area_for_concave() raises:
     p1 = Point(0, 0, 0)
     p2 = Point(1, 2, 0)
     p3 = Point(1, 1, 0)
     p4 = Point(2, 1, 0)
 
-    arrow = Face(List[Point](p1, p2, p3, p4))
+    arrow = Face([p1, p2, p3, p4])
 
     assert_equal(arrow.area(), 1)
 
 
-def test_square():
+def test_square() raises:
     p1 = Point(0, 0, 0)
     p2 = Point(1, 0, 0)
     p3 = Point(1, 1, 0)
     p4 = Point(0, 1, 0)
 
-    square = Face(List[Point](p1, p2, p3, p4))
+    square = Face([p1, p2, p3, p4])
 
     b1 = square.num_vertices() == 4
     b2 = square.num_edges() == 4
@@ -29,11 +29,11 @@ def test_square():
     assert_true(b1 & b2 & b3 & b4)
 
 
-def test_triangle():
+def test_triangle() raises:
     p1 = Point(0, 0, 0)
     p2 = Point(1, 0, 0)
     p3 = Point(1, 1, 0)
-    triangle = Face(List[Point](p1, p2, p3))
+    triangle = Face([p1, p2, p3])
 
     b1 = triangle.num_vertices() == 3
     b2 = triangle.num_edges() == 3
@@ -43,11 +43,19 @@ def test_triangle():
     assert_true(b1 & b2 & b3 & b4)
 
 
-def test_normal_for_collinear_edges():
+def test_normal_for_collinear_edges() raises:
     p1 = Point(0, 0, 0)
     p2 = Point(0.5, 0, 0)
     p3 = Point(1, 0, 0)
     p4 = Point(0, 1, 0)
 
-    square = Face(List[Point](p1, p2, p3, p4))
+    square = Face([p1, p2, p3, p4])
     assert_true(square.normal().length() > 0)
+
+
+def main() raises:
+    test_area_for_concave()
+    test_square()
+    test_triangle()
+    test_normal_for_collinear_edges()
+    print("All tests passed")

@@ -1,4 +1,4 @@
-fn main():
+def main():
     var a = "1"
     var b = "2"
     list1 = List[String](a, b, a, a)

@@ -1,5 +1,5 @@
 from geokernel import FType, Point, Vector3
-from math import sqrt, pi, cos, sin
+from std.math import sqrt, pi, cos, sin
 
 
 struct Circle(Copyable, Movable, ImplicitlyCopyable):
@@ -7,22 +7,17 @@ struct Circle(Copyable, Movable, ImplicitlyCopyable):
     var normal: Vector3
     var radius: FType
 
-    fn __init__(out self, center: Point, normal: Vector3, radius: FType):
+    def __init__(out self, center: Point, normal: Vector3, radius: FType):
         self.center = center
         self.normal = normal
         self.radius = radius
 
-    fn __copyinit__(out self, copy: Self):
-        self.center = copy.center
-        self.normal = copy.normal
-        self.radius = copy.radius
-
-    fn __moveinit__(out self, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         self.center = take.center
         self.normal = take.normal
         self.radius = take.radius
 
-    fn point_at(self, t: FType) -> Point:
+    def point_at(self, t: FType) -> Point:
         """Return parametric point on circle. t=0..1 maps to full circle (2*pi)."""
         var angle = t * 2.0 * pi
 
@@ -46,20 +41,20 @@ struct Circle(Copyable, Movable, ImplicitlyCopyable):
 
         return Point(x, y, z)
 
-    fn start_point(self) -> Point:
+    def start_point(self) -> Point:
         return self.point_at(0.0)
 
-    fn end_point(self) -> Point:
+    def end_point(self) -> Point:
         return self.point_at(1.0)
 
-    fn length(self) -> FType:
+    def length(self) -> FType:
         """Circumference of the circle."""
         return 2.0 * pi * self.radius
 
-    fn is_closed(self) -> Bool:
+    def is_closed(self) -> Bool:
         return True
 
-    fn contains_point(self, p: Point, atol: FType) -> Bool:
+    def contains_point(self, p: Point, atol: FType) -> Bool:
         """Check if point lies on the circle (within tolerance)."""
         # Project p onto the circle plane, then check radius
         var n = self.normal.normalize()
@@ -82,7 +77,7 @@ struct Circle(Copyable, Movable, ImplicitlyCopyable):
         var radial_dist = in_plane.length()
         return abs(radial_dist - self.radius) < atol
 
-    fn project_point(self, p: Point) -> Point:
+    def project_point(self, p: Point) -> Point:
         """Closest point on the circle to p."""
         var n = self.normal.normalize()
         # Project p onto circle plane
@@ -104,7 +99,7 @@ struct Circle(Copyable, Movable, ImplicitlyCopyable):
             self.center.z + in_plane.z * scale,
         )
 
-    fn distance_to_point(self, p: Point) -> FType:
+    def distance_to_point(self, p: Point) -> FType:
         """Distance from p to the closest point on the circle."""
         var closest = self.project_point(p)
         var dx = closest.x - p.x
@@ -112,7 +107,7 @@ struct Circle(Copyable, Movable, ImplicitlyCopyable):
         var dz = closest.z - p.z
         return sqrt(dx * dx + dy * dy + dz * dz)
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         return (
             "Circle(center="
             + self.center.__repr__()

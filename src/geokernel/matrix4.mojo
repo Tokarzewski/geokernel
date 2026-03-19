@@ -1,5 +1,5 @@
 from geokernel import FType, Vector4, Quaternion
-from math import sqrt
+from std.math import sqrt
 
 
 struct Matrix4(Copyable, Movable, ImplicitlyCopyable):
@@ -10,13 +10,13 @@ struct Matrix4(Copyable, Movable, ImplicitlyCopyable):
     var row3: Vector4
     var row4: Vector4
 
-    fn __init__(out self, row1: Vector4, row2: Vector4, row3: Vector4, row4: Vector4):
+    def __init__(out self, row1: Vector4, row2: Vector4, row3: Vector4, row4: Vector4):
         self.row1 = row1
         self.row2 = row2
         self.row3 = row3
         self.row4 = row4
 
-    fn __init__(out self, q: Quaternion):
+    def __init__(out self, q: Quaternion):
         var x = q.x
         var y = q.y
         var z = q.z
@@ -38,39 +38,27 @@ struct Matrix4(Copyable, Movable, ImplicitlyCopyable):
         self.row4 = Vector4(0, 0, 0, 1)
 
 
-    fn __copyinit__(out self, copy: Self):
-        self.row1 = copy.row1
-        self.row2 = copy.row2
-        self.row3 = copy.row3
-        self.row4 = copy.row4
-
-    fn __moveinit__(out self, deinit take: Self):
-        self.row1 = take.row1
-        self.row2 = take.row2
-        self.row3 = take.row3
-        self.row4 = take.row4
-
     @staticmethod
-    fn identity() -> Matrix4:
+    def identity() -> Matrix4:
         return Self(Vector4.unitX(), Vector4.unitY(), Vector4.unitZ(), Vector4.unitW())
 
     @staticmethod
-    fn zero() -> Matrix4:
+    def zero() -> Matrix4:
         return Self(Vector4.zero(), Vector4.zero(), Vector4.zero(), Vector4.zero())
 
-    fn column0(self) -> Vector4:
+    def column0(self) -> Vector4:
         return Vector4(self.row1.x, self.row2.x, self.row3.x, self.row4.x)
 
-    fn column1(self) -> Vector4:
+    def column1(self) -> Vector4:
         return Vector4(self.row1.y, self.row2.y, self.row3.y, self.row4.y)
 
-    fn column2(self) -> Vector4:
+    def column2(self) -> Vector4:
         return Vector4(self.row1.z, self.row2.z, self.row3.z, self.row4.z)
 
-    fn column3(self) -> Vector4:
+    def column3(self) -> Vector4:
         return Vector4(self.row1.w, self.row2.w, self.row3.w, self.row4.w)
 
-    fn determinant(self) -> FType:
+    def determinant(self) -> FType:
         return (
             self.row1.x
             * (
@@ -98,20 +86,26 @@ struct Matrix4(Copyable, Movable, ImplicitlyCopyable):
             )
         )
 
-    fn movement(self) -> Vector3:
+    def movement(self) -> Vector3:
         return Vector3(self.row4.x, self.row4.y, self.row4.z)
 
-    fn scale(self) -> Vector3:
+    def scale(self) -> Vector3:
         return Vector3(
             Vector3(self.row1.x, self.row1.y, self.row1.z).length(),
             Vector3(self.row2.x, self.row2.y, self.row2.z).length(),
             Vector3(self.row3.x, self.row3.y, self.row3.z).length(),
         )
 
-    fn rotation(self) -> Quaternion:
-        m00, m01, m02, _ = self.row1.components()
-        m10, m11, m12, _ = self.row2.components()
-        m20, m21, m22, _ = self.row3.components()
+    def rotation(self) -> Quaternion:
+        var m00 = self.row1.x
+        var m01 = self.row1.y
+        var m02 = self.row1.z
+        var m10 = self.row2.x
+        var m11 = self.row2.y
+        var m12 = self.row2.z
+        var m20 = self.row3.x
+        var m21 = self.row3.y
+        var m22 = self.row3.z
 
         trace = m00 + m11 + m22
 

@@ -1,8 +1,8 @@
 from geokernel import FType, Point, Vector3, Line, Face, Shell, Wire, AABB, BVH
-from math import sqrt
+from std.math import sqrt
 
 
-fn ray_shell_intersection(origin: Point, direction: Vector3, shell: Shell) -> List[Point]:
+def ray_shell_intersection(origin: Point, direction: Vector3, shell: Shell) -> List[Point]:
     """Find all points where a ray intersects a shell's faces.
     Uses BVH acceleration: first finds candidate faces via AABB query,
     then performs exact ray-triangle intersection tests.
@@ -65,7 +65,7 @@ fn ray_shell_intersection(origin: Point, direction: Vector3, shell: Shell) -> Li
     return result^
 
 
-fn segment_segment_intersection(p1: Point, p2: Point, p3: Point, p4: Point) -> Optional[Point]:
+def segment_segment_intersection(p1: Point, p2: Point, p3: Point, p4: Point) -> Optional[Point]:
     """3D segment-segment closest point / intersection.
     Returns the intersection Point if the two segments intersect (or nearly
     intersect within tolerance), otherwise returns None.
@@ -138,7 +138,7 @@ fn segment_segment_intersection(p1: Point, p2: Point, p3: Point, p4: Point) -> O
     return Optional[Point](None)
 
 
-fn shell_shell_intersection(s1: Shell, s2: Shell) -> List[Wire]:
+def shell_shell_intersection(s1: Shell, s2: Shell) -> List[Wire]:
     """Find intersection curves between two shells.
     Iterates all face pairs between s1 and s2 and collects intersection
     segments. Segments are assembled into wires.

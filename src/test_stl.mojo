@@ -3,7 +3,7 @@ from geokernel import FType, Point, Face
 from geokernel.stl import export_stl_ascii, import_stl_ascii
 
 
-fn test_export_contains_keywords() raises:
+def test_export_contains_keywords() raises:
     """Export triangle → ASCII STL contains solid, facet normal, vertex, endsolid."""
     var pts = List[Point]()
     pts.append(Point(0, 0, 0))
@@ -19,7 +19,7 @@ fn test_export_contains_keywords() raises:
     assert_true(stl.find("endsolid") >= 0)
 
 
-fn test_roundtrip_triangle() raises:
+def test_roundtrip_triangle() raises:
     """Round-trip: triangle → STL → import → 1 face, 3 vertices."""
     var pts = List[Point]()
     pts.append(Point(0, 0, 0))
@@ -35,7 +35,7 @@ fn test_roundtrip_triangle() raises:
     assert_equal(imported[0].num_vertices(), 3)
 
 
-fn test_export_square_fan_triangulation() raises:
+def test_export_square_fan_triangulation() raises:
     """Export square (4 vertices) → 2 triangles in output."""
     var pts = List[Point]()
     pts.append(Point(0, 0, 0))
@@ -58,7 +58,7 @@ fn test_export_square_fan_triangulation() raises:
     assert_equal(count, 2)
 
 
-fn test_import_known_stl() raises:
+def test_import_known_stl() raises:
     """Import known STL string → correct face count."""
     var stl = String(
         "solid test\n"
@@ -82,7 +82,7 @@ fn test_import_known_stl() raises:
     assert_equal(len(faces), 2)
 
 
-fn test_normal_nonzero() raises:
+def test_normal_nonzero() raises:
     """Normal in exported STL is non-zero for non-degenerate triangle."""
     var pts = List[Point]()
     pts.append(Point(0, 0, 0))
@@ -97,7 +97,7 @@ fn test_normal_nonzero() raises:
     assert_true(not has_zero_normal)
 
 
-fn main() raises:
+def main() raises:
     test_export_contains_keywords()
     print("PASS test_export_contains_keywords")
 

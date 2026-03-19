@@ -1,5 +1,5 @@
 from geokernel import FType, Point, Vector3
-from math import sqrt
+from std.math import sqrt
 
 
 struct NurbsCurve(Copyable, Movable, ImplicitlyCopyable):
@@ -8,28 +8,28 @@ struct NurbsCurve(Copyable, Movable, ImplicitlyCopyable):
     var degree: Int
     var weights: List[FType]
 
-    fn __init__(out self, control_points: List[Point], knots: List[FType], degree: Int, weights: List[FType]):
+    def __init__(out self, control_points: List[Point], knots: List[FType], degree: Int, weights: List[FType]):
         self.control_points = control_points.copy()
         self.knots = knots.copy()
         self.degree = degree
         self.weights = weights.copy()
 
-    fn __copyinit__(out self, copy: Self):
+    def __init__(out self, *, copy: Self):
         self.control_points = copy.control_points.copy()
         self.knots = copy.knots.copy()
         self.degree = copy.degree
         self.weights = copy.weights.copy()
 
-    fn __moveinit__(out self, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         self.control_points = take.control_points^
         self.knots = take.knots^
         self.degree = take.degree
         self.weights = take.weights^
 
-    fn num_control_points(self) -> Int:
+    def num_control_points(self) -> Int:
         return len(self.control_points)
 
-    fn _find_knot_span(self, t: FType) -> Int:
+    def _find_knot_span(self, t: FType) -> Int:
         """Find the knot span index for parameter t using binary search."""
         var n = self.num_control_points() - 1
         var p = self.degree
@@ -54,7 +54,7 @@ struct NurbsCurve(Copyable, Movable, ImplicitlyCopyable):
             mid = (low + high) // 2
         return mid
 
-    fn _basis_functions(self, span: Int, t: FType) -> List[FType]:
+    def _basis_functions(self, span: Int, t: FType) -> List[FType]:
         """Compute B-spline basis functions N[0..degree] at t."""
         var p = self.degree
         var N = List[FType]()
@@ -85,7 +85,7 @@ struct NurbsCurve(Copyable, Movable, ImplicitlyCopyable):
 
         return N.copy()
 
-    fn point_at(self, t: FType) -> Point:
+    def point_at(self, t: FType) -> Point:
         """Evaluate NURBS curve at parameter t using de Boor / rational B-spline."""
         var n = self.num_control_points()
         if n == 0:
@@ -118,7 +118,7 @@ struct NurbsCurve(Copyable, Movable, ImplicitlyCopyable):
 
         return Point(wx / w_sum, wy / w_sum, wz / w_sum)
 
-    fn derivative_at(self, t: FType) -> Vector3:
+    def derivative_at(self, t: FType) -> Vector3:
         """Numerical first derivative via central differences."""
         var h: FType = 1e-6
         var t_min: FType = 0.0
@@ -145,7 +145,7 @@ struct NurbsCurve(Copyable, Movable, ImplicitlyCopyable):
             (p2.z - p1.z) / dt,
         )
 
-    fn length(self) -> FType:
+    def length(self) -> FType:
         """Approximate arc length via numerical integration with 100 segments."""
         var segments = 100
         var n = self.num_control_points()
@@ -171,7 +171,7 @@ struct NurbsCurve(Copyable, Movable, ImplicitlyCopyable):
 
         return total
 
-    fn is_closed(self) -> Bool:
+    def is_closed(self) -> Bool:
         """Check if start and end control points coincide."""
         var n = self.num_control_points()
         if n < 2:
@@ -183,7 +183,7 @@ struct NurbsCurve(Copyable, Movable, ImplicitlyCopyable):
         var dz = p_end.z - p_start.z
         return sqrt(dx * dx + dy * dy + dz * dz) < 1e-10
 
-    fn project_point(self, p: Point) -> Point:
+    def project_point(self, p: Point) -> Point:
         """Find the closest point on the curve to p by sampling + refinement."""
         var n = self.num_control_points()
         if n == 0:
@@ -226,7 +226,7 @@ struct NurbsCurve(Copyable, Movable, ImplicitlyCopyable):
                 lo = m1
         return self.point_at((lo + hi) / 2.0)
 
-    fn distance_to_point(self, p: Point) -> FType:
+    def distance_to_point(self, p: Point) -> FType:
         """Distance from p to the closest point on the curve."""
         var closest = self.project_point(p)
         var dx = closest.x - p.x
@@ -234,7 +234,7 @@ struct NurbsCurve(Copyable, Movable, ImplicitlyCopyable):
         var dz = closest.z - p.z
         return sqrt(dx * dx + dy * dy + dz * dz)
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         return (
             "NurbsCurve(degree="
             + String(self.degree)

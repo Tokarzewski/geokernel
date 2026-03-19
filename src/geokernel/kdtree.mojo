@@ -1,5 +1,5 @@
 from geokernel import FType, Point
-from math import sqrt, inf
+from std.math import sqrt, inf
 
 
 # ---------------------------------------------------------------------------
@@ -9,7 +9,7 @@ from math import sqrt, inf
 # children instead of pointers, avoiding Mojo ownership issues with recursive
 # self-referential structs.
 
-alias KDTREE_NONE: Int = -1
+comptime KDTREE_NONE: Int = -1
 
 
 struct KDNode(Copyable, Movable, ImplicitlyCopyable):
@@ -25,26 +25,26 @@ struct KDNode(Copyable, Movable, ImplicitlyCopyable):
     var right: Int
     var axis: Int
 
-    fn __init__(out self, point_idx: Int, left: Int, right: Int, axis: Int):
+    def __init__(out self, point_idx: Int, left: Int, right: Int, axis: Int):
         self.point_idx = point_idx
         self.left = left
         self.right = right
         self.axis = axis
 
-    fn __copyinit__(out self, copy: Self):
+    def __init__(out self, *, copy: Self):
         self.point_idx = copy.point_idx
         self.left = copy.left
         self.right = copy.right
         self.axis = copy.axis
 
-    fn __moveinit__(out self, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         self.point_idx = take.point_idx
         self.left = take.left
         self.right = take.right
         self.axis = take.axis
 
 
-fn _coord(p: Point, axis: Int) -> FType:
+def _coord(p: Point, axis: Int) -> FType:
     """Return the axis-th coordinate of a point."""
     if axis == 0:
         return p.x
@@ -54,7 +54,7 @@ fn _coord(p: Point, axis: Int) -> FType:
         return p.z
 
 
-fn _dist_sq(a: Point, b: Point) -> FType:
+def _dist_sq(a: Point, b: Point) -> FType:
     """Squared Euclidean distance between two points."""
     var dx = a.x - b.x
     var dy = a.y - b.y
@@ -73,7 +73,7 @@ struct KDTree(Copyable, Movable, ImplicitlyCopyable):
     var points: List[Point]
     var root: Int   # index of root node in self.nodes (-1 if empty)
 
-    fn __init__(out self, points: List[Point]):
+    def __init__(out self, points: List[Point]):
         self.nodes = List[KDNode]()
         self.points = points.copy()
         self.root = KDTREE_NONE
@@ -86,12 +86,12 @@ struct KDTree(Copyable, Movable, ImplicitlyCopyable):
             indices.append(i)
         self.root = self._build(indices, 0)
 
-    fn __copyinit__(out self, copy: Self):
+    def __init__(out self, *, copy: Self):
         self.nodes = copy.nodes.copy()
         self.points = copy.points.copy()
         self.root = copy.root
 
-    fn __moveinit__(out self, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         self.nodes = take.nodes^
         self.points = take.points^
         self.root = take.root
@@ -100,7 +100,7 @@ struct KDTree(Copyable, Movable, ImplicitlyCopyable):
     # Build helpers
     # ------------------------------------------------------------------
 
-    fn _build(mut self, indices: List[Int], depth: Int) -> Int:
+    def _build(mut self, indices: List[Int], depth: Int) -> Int:
         """Recursively build the KD-tree. Returns the node index of the root."""
         var n = len(indices)
         if n == 0:
@@ -154,7 +154,7 @@ struct KDTree(Copyable, Movable, ImplicitlyCopyable):
     # Nearest neighbour
     # ------------------------------------------------------------------
 
-    fn nearest(self, query: Point) -> Point:
+    def nearest(self, query: Point) -> Point:
         """Return the closest point to query."""
         if self.root == KDTREE_NONE:
             return query  # empty tree — return query as fallback
@@ -163,7 +163,7 @@ struct KDTree(Copyable, Movable, ImplicitlyCopyable):
         self._nearest_search(self.root, query, best_idx, best_dist)
         return self.points[best_idx]
 
-    fn _nearest_search(
+    def _nearest_search(
         self,
         node_idx: Int,
         query: Point,
@@ -194,7 +194,7 @@ struct KDTree(Copyable, Movable, ImplicitlyCopyable):
     # k-nearest neighbours
     # ------------------------------------------------------------------
 
-    fn k_nearest(self, query: Point, k: Int) -> List[Point]:
+    def k_nearest(self, query: Point, k: Int) -> List[Point]:
         """Return the k closest points to query (sorted nearest-first)."""
         if self.root == KDTREE_NONE or k <= 0:
             return List[Point]()
@@ -224,7 +224,7 @@ struct KDTree(Copyable, Movable, ImplicitlyCopyable):
             result.append(self.points[heap_idx[i]])
         return result^
 
-    fn _k_nearest_search(
+    def _k_nearest_search(
         self,
         node_idx: Int,
         query: Point,
@@ -280,7 +280,7 @@ struct KDTree(Copyable, Movable, ImplicitlyCopyable):
     # Points within radius
     # ------------------------------------------------------------------
 
-    fn points_in_radius(self, center: Point, radius: Float64) -> List[Point]:
+    def points_in_radius(self, center: Point, radius: Float64) -> List[Point]:
         """Return all points within the given Euclidean radius of center."""
         var result = List[Point]()
         if self.root == KDTREE_NONE:
@@ -289,7 +289,7 @@ struct KDTree(Copyable, Movable, ImplicitlyCopyable):
         self._radius_search(self.root, center, radius_sq, result)
         return result^
 
-    fn _radius_search(
+    def _radius_search(
         self,
         node_idx: Int,
         center: Point,

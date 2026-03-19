@@ -4,7 +4,7 @@ from geokernel.slice import FacePair, classify_point, slice_face_by_plane, slice
 from math import abs
 
 
-fn unit_cube_faces() -> List[Face]:
+def unit_cube_faces() -> List[Face]:
     """Build a unit cube [0,1]^3 as 6 faces.
     Replicates Cell.from_two_points(Point(0,0,0), Point(1,1,1)) inline
     because Cell.from_two_points has a Mojo version issue.
@@ -49,31 +49,31 @@ fn unit_cube_faces() -> List[Face]:
 
 # ─── Test 1: classify_point ──────────────────────────────────────────────────
 
-fn test_classify_above() raises:
+def test_classify_above() raises:
     """Point above z=0 plane → +1."""
     var plane = Plane(Point(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0))
     var p = Point(0.0, 0.0, 1.0)
     assert_equal(classify_point(p, plane), 1)
 
-fn test_classify_below() raises:
+def test_classify_below() raises:
     """Point below z=0 plane → -1."""
     var plane = Plane(Point(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0))
     var p = Point(0.0, 0.0, -1.0)
     assert_equal(classify_point(p, plane), -1)
 
-fn test_classify_on_plane() raises:
+def test_classify_on_plane() raises:
     """Point exactly on z=0 plane → 0."""
     var plane = Plane(Point(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0))
     var p = Point(1.0, 2.0, 0.0)
     assert_equal(classify_point(p, plane), 0)
 
-fn test_classify_y_plane_above() raises:
+def test_classify_y_plane_above() raises:
     """Point above y=0.5 plane → +1."""
     var plane = Plane(Point(0.0, 0.5, 0.0), Vector3(0.0, 1.0, 0.0))
     var p = Point(0.0, 1.0, 0.0)
     assert_equal(classify_point(p, plane), 1)
 
-fn test_classify_y_plane_below() raises:
+def test_classify_y_plane_below() raises:
     """Point below y=0.5 plane → -1."""
     var plane = Plane(Point(0.0, 0.5, 0.0), Vector3(0.0, 1.0, 0.0))
     var p = Point(0.0, 0.0, 0.0)
@@ -82,7 +82,7 @@ fn test_classify_y_plane_below() raises:
 
 # ─── Test 2: all-above face stays above ──────────────────────────────────────
 
-fn test_all_above_face() raises:
+def test_all_above_face() raises:
     """Face entirely above z=0 plane → above list only, below empty."""
     var plane = Plane(Point(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0))
     var pts = List[Point]()
@@ -98,7 +98,7 @@ fn test_all_above_face() raises:
 
 # ─── Test 3: all-below face stays below ──────────────────────────────────────
 
-fn test_all_below_face() raises:
+def test_all_below_face() raises:
     """Face entirely below z=0 plane → below list only, above empty."""
     var plane = Plane(Point(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0))
     var pts = List[Point]()
@@ -114,7 +114,7 @@ fn test_all_below_face() raises:
 
 # ─── Test 4: unit square sliced at y=0.5 ─────────────────────────────────────
 
-fn test_square_sliced_at_midplane() raises:
+def test_square_sliced_at_midplane() raises:
     """Unit square (z=0, y in [0,1]) sliced by y=0.5 plane.
     Analytical: each half area = 0.5.
     Above half: y in [0.5, 1.0], area = 1.0 * 0.5 = 0.5.
@@ -144,7 +144,7 @@ fn test_square_sliced_at_midplane() raises:
 
 # ─── Test 5: unit cube sliced at z=0.5 ───────────────────────────────────────
 
-fn test_unit_cube_sliced_at_z05() raises:
+def test_unit_cube_sliced_at_z05() raises:
     """Unit cube (6 faces) sliced by z=0.5 plane.
     Above: top face (1) + 4 upper half-side-faces (0.5 each) = area 3.0.
     Below: bottom face (1) + 4 lower half-side-faces (0.5 each) = area 3.0.
@@ -172,7 +172,7 @@ fn test_unit_cube_sliced_at_z05() raises:
 
 # ─── Test 6: slice_faces_by_plane with separated faces ───────────────────────
 
-fn test_slice_faces_mixed() raises:
+def test_slice_faces_mixed() raises:
     """Two faces: one above plane, one below. Each stays on its side."""
     var plane = Plane(Point(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0))
 
@@ -199,7 +199,7 @@ fn test_slice_faces_mixed() raises:
 
 # ─── Test 7: triangle sliced diagonally ──────────────────────────────────────
 
-fn test_triangle_sliced_at_midpoint() raises:
+def test_triangle_sliced_at_midpoint() raises:
     """Triangle (0,0,0)-(2,0,0)-(1,2,0) sliced by y=1 plane.
     Analytical area of original triangle = 0.5 * base * height = 0.5 * 2 * 2 = 2.0.
     The slice at y=1 cuts the triangle at two edge midpoints.
@@ -225,7 +225,7 @@ fn test_triangle_sliced_at_midpoint() raises:
 
 # ─── Test 8: face on the plane itself ────────────────────────────────────────
 
-fn test_face_on_plane() raises:
+def test_face_on_plane() raises:
     """Face that lies exactly on the plane → goes to above (or on-plane) bucket."""
     var plane = Plane(Point(0.0, 0.0, 0.0), Vector3(0.0, 0.0, 1.0))
     var pts = List[Point]()
@@ -240,7 +240,7 @@ fn test_face_on_plane() raises:
     assert_equal(len(result.below), 0)
 
 
-fn main() raises:
+def main() raises:
     test_classify_above()
     print("PASS: classify_point above -> +1")
 

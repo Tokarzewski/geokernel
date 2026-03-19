@@ -1,6 +1,6 @@
 from geokernel import FType, Point, Vector3, Plane
 from geokernel.surface import Surface
-import math
+import std.math as math
 
 
 struct PlanarSurface(Copyable, Movable, ImplicitlyCopyable, Surface):
@@ -8,12 +8,12 @@ struct PlanarSurface(Copyable, Movable, ImplicitlyCopyable, Surface):
     var width: FType
     var height: FType
 
-    fn __init__(out self, plane: Plane, width: FType, height: FType):
+    def __init__(out self, plane: Plane, width: FType, height: FType):
         self.plane = plane
         self.width = width
         self.height = height
 
-    fn _local_axes(self) -> Tuple[Vector3, Vector3]:
+    def _local_axes(self) -> Tuple[Vector3, Vector3]:
         """Compute two orthogonal tangent vectors in the plane."""
         var n = self.plane.vector
         # Pick a vector not parallel to n
@@ -24,7 +24,7 @@ struct PlanarSurface(Copyable, Movable, ImplicitlyCopyable, Surface):
         var v_axis = n.cross(u_axis).normalize()
         return (u_axis, v_axis)
 
-    fn point_at(self, u: FType, v: FType) -> Point:
+    def point_at(self, u: FType, v: FType) -> Point:
         """Map u,v in [0,1] to a 3D point on the surface."""
         var axes = self._local_axes()
         var u_axis = axes[0]
@@ -35,21 +35,21 @@ struct PlanarSurface(Copyable, Movable, ImplicitlyCopyable, Surface):
         var offset = u_axis * du + v_axis * dv
         return self.plane.point.move(offset.x, offset.y, offset.z)
 
-    fn normal_at(self, u: FType, v: FType) -> Vector3:
+    def normal_at(self, u: FType, v: FType) -> Vector3:
         """Return the constant plane normal."""
         return self.plane.vector
 
-    fn area(self) -> FType:
+    def area(self) -> FType:
         return self.width * self.height
 
-    fn is_planar(self) -> Bool:
+    def is_planar(self) -> Bool:
         return True
 
-    fn project_point(self, p: Point) -> Point:
+    def project_point(self, p: Point) -> Point:
         """Project a point onto the plane."""
         return self.plane.project_point(p)
 
-    fn contains_point(self, p: Point, atol: FType) -> Bool:
+    def contains_point(self, p: Point, atol: FType) -> Bool:
         """Check if a point lies on this finite planar surface."""
         # First check distance to plane
         var dist = self.plane.distance_to_point(p)
@@ -65,13 +65,13 @@ struct PlanarSurface(Copyable, Movable, ImplicitlyCopyable, Surface):
         var dv = diff.dot(v_axis)
         return (math.abs(du) <= self.width / 2.0 + atol) and (math.abs(dv) <= self.height / 2.0 + atol)
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         return (
             "PlanarSurface(plane="
             + self.plane.__repr__()
             + ", width="
-            + str(self.width)
+            + String(self.width)
             + ", height="
-            + str(self.height)
+            + String(self.height)
             + ")"
         )

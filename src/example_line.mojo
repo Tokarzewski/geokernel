@@ -1,7 +1,7 @@
 from geokernel import Point, Line, Vector3
 
 
-fn main():
+def main():
     p1 = Point(0, 0, 0)
     p2 = Point(1, 1, 1)
     line1 = Line(p1, p2)

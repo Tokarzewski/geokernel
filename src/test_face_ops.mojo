@@ -3,7 +3,7 @@ from geokernel import Triangulation, PointInPolygon
 from math import abs, sqrt
 
 
-fn make_triangle() -> Face:
+def make_triangle() -> Face:
     var pts = List[Point]()
     pts.append(Point(0.0, 0.0, 0.0))
     pts.append(Point(1.0, 0.0, 0.0))
@@ -11,7 +11,7 @@ fn make_triangle() -> Face:
     return Face(pts)
 
 
-fn make_square() -> Face:
+def make_square() -> Face:
     var pts = List[Point]()
     pts.append(Point(0.0, 0.0, 0.0))
     pts.append(Point(1.0, 0.0, 0.0))
@@ -20,7 +20,7 @@ fn make_square() -> Face:
     return Face(pts)
 
 
-fn make_pentagon() -> Face:
+def make_pentagon() -> Face:
     var pts = List[Point]()
     pts.append(Point(1.0, 0.0, 0.0))
     pts.append(Point(0.309, 0.951, 0.0))
@@ -30,7 +30,7 @@ fn make_pentagon() -> Face:
     return Face(pts)
 
 
-fn test_face_normal():
+def test_face_normal() raises:
     var tri = make_triangle()
     var n = tri.normal()
     var ok = abs(abs(n.z) - 1.0) < 1e-6 and abs(n.x) < 1e-6 and abs(n.y) < 1e-6
@@ -40,7 +40,7 @@ fn test_face_normal():
         print("FAIL: triangle normal =", n.__repr__())
 
 
-fn test_face_centroid():
+def test_face_centroid() raises:
     var sq = make_square()
     var c = sq.centroid()
     var ok = abs(c.x - 0.5) < 1e-10 and abs(c.y - 0.5) < 1e-10 and abs(c.z) < 1e-10
@@ -50,7 +50,7 @@ fn test_face_centroid():
         print("FAIL: centroid =", c.__repr__())
 
 
-fn test_face_is_planar():
+def test_face_is_planar() raises:
     var sq = make_square()
     if sq.is_planar():
         print("PASS: square is planar")
@@ -58,7 +58,7 @@ fn test_face_is_planar():
         print("FAIL: square should be planar")
 
 
-fn test_face_triangulate():
+def test_face_triangulate() raises:
     var pent = make_pentagon()
     var tris = pent.triangulate()
     # Pentagon (5 verts) should give 3 triangles
@@ -68,7 +68,7 @@ fn test_face_triangulate():
         print("FAIL: expected 3 triangles, got", String(len(tris)))
 
 
-fn test_point_in_polygon():
+def test_point_in_polygon() raises:
     var sq = make_square()
     var inside = Point(0.5, 0.5, 0.0)
     var outside = Point(2.0, 2.0, 0.0)
@@ -83,7 +83,7 @@ fn test_point_in_polygon():
         print("FAIL: point should be outside")
 
 
-fn test_triangulation_direct():
+def test_triangulation_direct() raises:
     var pts = List[Point]()
     pts.append(Point(0.0, 0.0, 0.0))
     pts.append(Point(1.0, 0.0, 0.0))
@@ -97,7 +97,7 @@ fn test_triangulation_direct():
         print("FAIL: expected 2, got", String(len(tris)))
 
 
-fn main():
+def main() raises:
     print("=== Face Operations Tests ===")
     test_face_normal()
     test_face_centroid()

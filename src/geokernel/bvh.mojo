@@ -1,5 +1,5 @@
 from geokernel import AABB, Point, Vector3
-from math import sqrt
+from std.math import sqrt
 
 
 struct BVHNode(Copyable, Movable, ImplicitlyCopyable):
@@ -10,25 +10,25 @@ struct BVHNode(Copyable, Movable, ImplicitlyCopyable):
     var right: Int  # index into BVH.nodes, -1 if leaf
     var leaf_index: Int  # index into original aabbs list, -1 if internal node
 
-    fn __init__(out self, aabb: AABB, left: Int, right: Int, leaf_index: Int):
+    def __init__(out self, aabb: AABB, left: Int, right: Int, leaf_index: Int):
         self.aabb = aabb
         self.left = left
         self.right = right
         self.leaf_index = leaf_index
 
-    fn __copyinit__(out self, copy: Self):
+    def __init__(out self, *, copy: Self):
         self.aabb = copy.aabb
         self.left = copy.left
         self.right = copy.right
         self.leaf_index = copy.leaf_index
 
-    fn __moveinit__(out self, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         self.aabb = take.aabb
         self.left = take.left
         self.right = take.right
         self.leaf_index = take.leaf_index
 
-    fn is_leaf(self) -> Bool:
+    def is_leaf(self) -> Bool:
         return self.leaf_index != -1
 
 
@@ -37,7 +37,7 @@ struct BVH(Copyable, Movable, ImplicitlyCopyable):
 
     var nodes: List[BVHNode]
 
-    fn __init__(out self, aabbs: List[AABB]):
+    def __init__(out self, aabbs: List[AABB]):
         self.nodes = List[BVHNode]()
         if len(aabbs) == 0:
             return
@@ -46,13 +46,13 @@ struct BVH(Copyable, Movable, ImplicitlyCopyable):
             indices.append(i)
         _ = self._build(aabbs, indices)
 
-    fn __copyinit__(out self, copy: Self):
+    def __init__(out self, *, copy: Self):
         self.nodes = copy.nodes.copy()
 
-    fn __moveinit__(out self, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         self.nodes = take.nodes^
 
-    fn _compute_union_aabb(self, aabbs: List[AABB], indices: List[Int]) -> AABB:
+    def _compute_union_aabb(self, aabbs: List[AABB], indices: List[Int]) -> AABB:
         var combined = aabbs[indices[0]]
         for i in range(1, len(indices)):
             var b = aabbs[indices[i]]
@@ -60,7 +60,7 @@ struct BVH(Copyable, Movable, ImplicitlyCopyable):
             combined.p_max = Point.max(combined.p_max, b.p_max)
         return combined
 
-    fn _build(mut self, aabbs: List[AABB], indices: List[Int]) -> Int:
+    def _build(mut self, aabbs: List[AABB], indices: List[Int]) -> Int:
         """Recursively build BVH. Returns node index."""
         var node_aabb = self._compute_union_aabb(aabbs, indices)
 
@@ -128,7 +128,7 @@ struct BVH(Copyable, Movable, ImplicitlyCopyable):
         self.nodes.append(node)
         return len(self.nodes) - 1
 
-    fn query_point(self, p: Point) -> List[Int]:
+    def query_point(self, p: Point) -> List[Int]:
         """Return indices of original AABBs that contain the point."""
         var result = List[Int]()
         if len(self.nodes) == 0:
@@ -156,7 +156,7 @@ struct BVH(Copyable, Movable, ImplicitlyCopyable):
 
         return result^
 
-    fn _aabbs_overlap(self, a: AABB, b: AABB) -> Bool:
+    def _aabbs_overlap(self, a: AABB, b: AABB) -> Bool:
         """Check if two AABBs overlap."""
         return (
             a.p_min.x <= b.p_max.x and a.p_max.x >= b.p_min.x and
@@ -164,7 +164,7 @@ struct BVH(Copyable, Movable, ImplicitlyCopyable):
             a.p_min.z <= b.p_max.z and a.p_max.z >= b.p_min.z
         )
 
-    fn query_aabb(self, q: AABB) -> List[Int]:
+    def query_aabb(self, q: AABB) -> List[Int]:
         """Return indices of original AABBs that overlap with q."""
         var result = List[Int]()
         if len(self.nodes) == 0:
@@ -192,7 +192,7 @@ struct BVH(Copyable, Movable, ImplicitlyCopyable):
 
         return result^
 
-    fn _ray_intersects_aabb(self, aabb: AABB, origin: Point, direction: Vector3) -> Bool:
+    def _ray_intersects_aabb(self, aabb: AABB, origin: Point, direction: Vector3) -> Bool:
         """Slab-method ray-AABB intersection test.
         Returns True if the ray (origin + t*direction, t >= 0) intersects the AABB.
         """
@@ -243,7 +243,7 @@ struct BVH(Copyable, Movable, ImplicitlyCopyable):
 
         return t_max >= 0.0
 
-    fn ray_query(self, origin: Point, direction: Vector3) -> List[Int]:
+    def ray_query(self, origin: Point, direction: Vector3) -> List[Int]:
         """Return leaf indices (original AABB indices) whose AABBs the ray intersects.
         Uses the slab method for AABB-ray testing and traverses the BVH tree.
         """
@@ -273,7 +273,7 @@ struct BVH(Copyable, Movable, ImplicitlyCopyable):
 
         return result^
 
-    fn k_nearest_nodes(self, query: Point, k: Int) -> List[Int]:
+    def k_nearest_nodes(self, query: Point, k: Int) -> List[Int]:
         """Return indices of k nearest leaf nodes by AABB centroid distance.
         Performs a linear scan over all leaf nodes (sufficient for typical BVH sizes).
         Returns up to k indices sorted by ascending distance.

@@ -1,8 +1,8 @@
 from geokernel import FType, Point, Face
-from math import cos, sin, pi
+from std.math import cos, sin, pi
 
 
-fn box_faces(p_min: Point, p_max: Point) -> List[Face]:
+def box_faces(p_min: Point, p_max: Point) -> List[Face]:
     """Six faces of an axis-aligned box."""
     var x0 = p_min.x; var y0 = p_min.y; var z0 = p_min.z
     var x1 = p_max.x; var y1 = p_max.y; var z1 = p_max.z
@@ -48,7 +48,7 @@ fn box_faces(p_min: Point, p_max: Point) -> List[Face]:
     return faces^
 
 
-fn sphere_faces(center: Point, radius: FType, u_segments: Int = 16, v_segments: Int = 8) -> List[Face]:
+def sphere_faces(center: Point, radius: FType, u_segments: Int = 16, v_segments: Int = 8) -> List[Face]:
     """Quad/triangle mesh faces approximating a sphere."""
     var faces = List[Face]()
 
@@ -100,7 +100,7 @@ fn sphere_faces(center: Point, radius: FType, u_segments: Int = 16, v_segments: 
     return faces^
 
 
-fn cylinder_faces(center: Point, radius: FType, height: FType, segments: Int = 16) -> List[Face]:
+def cylinder_faces(center: Point, radius: FType, height: FType, segments: Int = 16) -> List[Face]:
     """Faces of a cylinder (side quads + top/bottom discs as fans)."""
     var faces = List[Face]()
     var bot_center = center
@@ -136,7 +136,7 @@ fn cylinder_faces(center: Point, radius: FType, height: FType, segments: Int = 1
     return faces^
 
 
-fn cone_faces(center: Point, radius: FType, height: FType, segments: Int = 16) -> List[Face]:
+def cone_faces(center: Point, radius: FType, height: FType, segments: Int = 16) -> List[Face]:
     """Faces of a cone (side triangles + bottom disc as fan)."""
     var faces = List[Face]()
     var bot_center = center

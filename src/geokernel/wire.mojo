@@ -1,21 +1,21 @@
 from geokernel import FType, Point, Line, Vector3, Transform, Quaternion, Shell, Face, AABB
-from math import sqrt
+from std.math import sqrt
 
 
 struct Wire(Copyable, Movable, ImplicitlyCopyable):
     var points: List[Point]
 
-    fn __init__(out self, points: List[Point]):
+    def __init__(out self, points: List[Point]):
         self.points = points.copy()
 
 
-    fn __copyinit__(out self, copy: Self):
+    def __init__(out self, *, copy: Self):
         self.points = copy.points.copy()
 
-    fn __moveinit__(out self, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         self.points = take.points^
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         var result: String = "Wire("
         for i in range(len(self.points)):
             if i > 0:
@@ -23,62 +23,62 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
             result += self.points[i].__repr__()
         return result + ")"
 
-    fn num_points(self) -> Int:
+    def num_points(self) -> Int:
         return len(self.points)
 
-    fn num_segments(self) -> Int:
+    def num_segments(self) -> Int:
         return len(self.points) - 1
 
-    fn get_point(self, i: Int) -> Point:
+    def get_point(self, i: Int) -> Point:
         return self.points[i]
 
-    fn get_segment(self, i: Int) -> Line:
+    def get_segment(self, i: Int) -> Line:
         return Line(self.points[i], self.points[i + 1])
 
-    fn startpoint(self) -> Point:
+    def startpoint(self) -> Point:
         return self.points[0]
 
-    fn endpoint(self) -> Point:
+    def endpoint(self) -> Point:
         return self.points[-1]
 
-    fn is_closed(self, atol: FType = 1e-10) -> Bool:
+    def is_closed(self, atol: FType = 1e-10) -> Bool:
         """True if the first and last points are within atol of each other."""
         var s = self.startpoint()
         var e = self.endpoint()
         var dx = s.x - e.x
         var dy = s.y - e.y
         var dz = s.z - e.z
-        from math import sqrt
+        from std.math import sqrt
         return sqrt(dx * dx + dy * dy + dz * dz) <= atol
 
-    fn reverse(mut self) -> Self:
+    def reverse(mut self) -> Self:
         self.points.reverse()
         return self
 
-    fn length(self) -> FType:
+    def length(self) -> FType:
         var total_length: FType = 0
         for i in range(self.num_segments()):
             total_length += self.get_segment(i).length()
         return total_length
 
-    fn move(self, dx: FType, dy: FType, dz: FType) -> Self:
+    def move(self, dx: FType, dy: FType, dz: FType) -> Self:
         var moved_points = List[Point]()
         for i in range(len(self.points)):
             var moved_point = self.points[i].move(dx, dy, dz)
             moved_points.append(moved_point)
         return Self(moved_points)
 
-    fn move_by_vector(self, v: Vector3) -> Self:
+    def move_by_vector(self, v: Vector3) -> Self:
         return self.move(v.x, v.y, v.z)
 
-    fn transform(self, t: Transform) -> Self:
+    def transform(self, t: Transform) -> Self:
         """Apply a Transform to all points of the wire."""
         var transformed_points = List[Point]()
         for i in range(len(self.points)):
             transformed_points.append(self.points[i].transform(t))
         return Self(transformed_points)
 
-    fn intersects_line(self, l: Line) -> Bool:
+    def intersects_line(self, l: Line) -> Bool:
         """Return True if the wire intersects the given line segment."""
         for i in range(self.num_segments()):
             var seg = self.get_segment(i)
@@ -87,7 +87,7 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
                 return True
         return False
 
-    fn intersect_line(self, l: Line) -> List[Point]:
+    def intersect_line(self, l: Line) -> List[Point]:
         """Return all intersection points between the wire segments and the line."""
         var result = List[Point]()
         for i in range(self.num_segments()):
@@ -97,13 +97,13 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
                 result.append(intersection[1])
         return result^
 
-    fn rotate(self, q: Quaternion) -> Self:
+    def rotate(self, q: Quaternion) -> Self:
         var rotated = List[Point]()
         for i in range(len(self.points)):
             rotated.append(self.points[i].rotate(q))
         return Self(rotated)
 
-    fn sweep_along_wire(self, path: Wire) -> Shell:
+    def sweep_along_wire(self, path: Wire) -> Shell:
         """Sweep this wire profile along a path wire, creating a Shell."""
         var faces = List[Face]()
         var path_pts = path.points.copy()
@@ -129,7 +129,7 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
             current = next_pos
         return Shell(faces)
 
-    fn sweep(self, path: Line) -> Shell:
+    def sweep(self, path: Line) -> Shell:
         var direction = path.direction()
         var moved = self.move_by_vector(direction)
         var faces = List[Face]()
@@ -144,14 +144,14 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
             faces.append(Face(face_pts))
         return Shell(faces)
 
-    fn extrude(self, v: Vector3) -> Shell:
+    def extrude(self, v: Vector3) -> Shell:
         var faces = List[Face]()
         for i in range(self.num_segments()):
             var face = self.get_segment(i).extrude(v)
             faces.append(face)
         return Shell(faces)
 
-    fn is_planar(self, atol: FType = 1e-10) -> Bool:
+    def is_planar(self, atol: FType = 1e-10) -> Bool:
         """True if all points are coplanar (consistent normal across consecutive triples)."""
         var n = len(self.points)
         if n < 3:
@@ -187,15 +187,15 @@ struct Wire(Copyable, Movable, ImplicitlyCopyable):
                 return False
         return True
 
-    fn bounding_box(self) -> AABB:
+    def bounding_box(self) -> AABB:
         """Axis-aligned bounding box of all wire points."""
         return AABB(self.points)
 
-    fn remove_collinear_edges(self) -> Wire:
+    def remove_collinear_edges(self) -> Wire:
         """Merge consecutive collinear segments by removing intermediate points."""
         return self.remove_collinear_points()
 
-    fn remove_collinear_points(self, atol: FType = 1e-10) -> Wire:
+    def remove_collinear_points(self, atol: FType = 1e-10) -> Wire:
         """Remove intermediate collinear points, keeping only direction changes.
 
         A point is collinear if the cross product of the two adjacent edge

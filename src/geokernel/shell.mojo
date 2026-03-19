@@ -4,31 +4,31 @@ from geokernel import FType, Point, Face, Cell, Plane, Vector3, Wire
 struct Shell(Copyable, Movable, ImplicitlyCopyable):
     var faces: List[Face]
 
-    fn __init__(out self, faces: List[Face]):
+    def __init__(out self, faces: List[Face]):
         self.faces = faces.copy()
 
 
-    fn __copyinit__(out self, copy: Self):
+    def __init__(out self, *, copy: Self):
         self.faces = copy.faces.copy()
 
-    fn __moveinit__(out self, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         self.faces = take.faces^
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         var result: String = "Shell(\n"
-        for i in range(self.faces.size):
+        for i in range(len(self.faces)):
             if i > 0:
                 result += ",\n"
             result += self.faces[i].__repr__()
         return result + ")"
 
-    fn area(self) -> FType:
+    def area(self) -> FType:
         var area: FType = 0.0
-        for i in range(self.faces.size):
+        for i in range(len(self.faces)):
             area += self.faces[i].area()
         return area
 
-    fn open_edges(self) -> List[Tuple[Point, Point]]:
+    def open_edges(self) -> List[Tuple[Point, Point]]:
         """Return edges not shared by exactly 2 faces."""
         var edge_count = List[Tuple[Point, Point]]()
         var edge_counts_val = List[Int]()
@@ -61,12 +61,12 @@ struct Shell(Copyable, Movable, ImplicitlyCopyable):
                 result.append(edge_count[k])
         return result^
 
-    fn has_holes(self) -> Bool:
+    def has_holes(self) -> Bool:
         """True if any edge is not shared by exactly 2 faces."""
         var open = self.open_edges()
         return len(open) > 0
 
-    fn slice(self, p: Plane) -> Tuple[Shell, Shell]:
+    def slice(self, p: Plane) -> Tuple[Shell, Shell]:
         """Slice shell by plane.
         Faces whose centroid is on the positive side go to the first shell, negative to second.
         Faces straddling the plane are not split (stub for complex cases)."""
@@ -82,7 +82,7 @@ struct Shell(Copyable, Movable, ImplicitlyCopyable):
                 below.append(face)
         return (Shell(above), Shell(below))
 
-    fn boundary_wires(self) -> List[Wire]:
+    def boundary_wires(self) -> List[Wire]:
         """Assemble open edges into closed (or open) wires."""
         var open = self.open_edges()
         if len(open) == 0:

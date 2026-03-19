@@ -1,4 +1,4 @@
-from testing import assert_true
+from std.testing import assert_true
 from geokernel import FType, Point, Vector3, Line, Face, Shell
 from geokernel.distance import (
     point_to_point,
@@ -15,7 +15,7 @@ from geokernel.distance import (
 from std.math import sqrt, abs
 
 
-fn near(got: FType, expected: FType, tol: FType = 1.0e-9) -> Bool:
+def near(got: FType, expected: FType, tol: FType = 1.0e-9) -> Bool:
     var diff = got - expected
     if diff < 0.0:
         diff = -diff
@@ -116,7 +116,7 @@ def test_segment_to_segment_skew() raises:
     assert_true(near(segment_to_segment(s1, s2), sqrt(FType(2.0))))
 
 
-fn make_square(ox: FType, oy: FType, oz: FType) -> Face:
+def make_square(ox: FType, oy: FType, oz: FType) -> Face:
     """Unit square face at offset (ox, oy, oz) in the XY plane."""
     var pts = List[Point]()
     pts.append(Point(ox, oy, oz))
@@ -181,7 +181,7 @@ def test_shell_to_shell_touching() raises:
     assert_true(near(shell_to_shell(Shell(fa), Shell(fb)), 0.0))
 
 
-fn main() raises:
+def main() raises:
     print("=== test_distance.mojo ===")
     test_point_to_point()
     test_point_to_line_perpendicular()

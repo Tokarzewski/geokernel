@@ -4,28 +4,28 @@ from geokernel import merge_coincident_vertices, close_shell_gaps
 from math import abs
 
 
-fn assert_true(cond: Bool, name: String):
+def assert_true(cond: Bool, name: String):
     if cond:
         print("  PASS:", name)
     else:
         print("  FAIL:", name)
 
 
-fn assert_equal(val: Int, expected: Int, name: String):
+def assert_equal(val: Int, expected: Int, name: String):
     if val == expected:
         print("  PASS:", name, "=", val)
     else:
         print("  FAIL:", name, "expected", expected, "got", val)
 
 
-fn assert_close(val: Float64, expected: Float64, atol: Float64, name: String):
+def assert_close(val: Float64, expected: Float64, atol: Float64, name: String):
     if abs(val - expected) <= atol:
         print("  PASS:", name, "=", val)
     else:
         print("  FAIL:", name, "expected", expected, "got", val)
 
 
-fn main():
+def main() raises:
     print("=== test_sweep_heal ===")
 
     # ── Test 1: sweep_along_wire with L-shaped path ──────────────────────

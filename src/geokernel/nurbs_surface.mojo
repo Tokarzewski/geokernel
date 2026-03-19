@@ -1,9 +1,9 @@
 from geokernel import FType, Point, Vector3
 from geokernel.surface import Surface
-import math
+import std.math as math
 
 
-fn _find_span(n: Int, degree: Int, t: FType, knots: List[FType]) -> Int:
+def _find_span(n: Int, degree: Int, t: FType, knots: List[FType]) -> Int:
     """Find knot span index using binary search (Cox-de Boor)."""
     if t >= knots[n + 1]:
         return n
@@ -21,7 +21,7 @@ fn _find_span(n: Int, degree: Int, t: FType, knots: List[FType]) -> Int:
     return mid
 
 
-fn _basis_funs(span: Int, t: FType, degree: Int, knots: List[FType]) -> List[FType]:
+def _basis_funs(span: Int, t: FType, degree: Int, knots: List[FType]) -> List[FType]:
     """Compute non-zero B-spline basis functions."""
     var N = List[FType]()
     for _ in range(degree + 1):
@@ -44,7 +44,7 @@ fn _basis_funs(span: Int, t: FType, degree: Int, knots: List[FType]) -> List[FTy
     return N.copy()
 
 
-fn _basis_funs_deriv(span: Int, t: FType, degree: Int, knots: List[FType]) -> (List[FType], List[FType]):
+def _basis_funs_deriv(span: Int, t: FType, degree: Int, knots: List[FType]) -> Tuple[List[FType], List[FType]]:
     """Compute B-spline basis functions and their first derivatives."""
     var N = _basis_funs(span, t, degree, knots)
     var dN = List[FType]()
@@ -73,7 +73,7 @@ fn _basis_funs_deriv(span: Int, t: FType, degree: Int, knots: List[FType]) -> (L
                 if denom_right > 1e-14:
                     right_val = FType(degree) * N_prev[i - 1] / denom_right
             dN[i] = left_val - right_val
-    return (N, dN)
+    return (N^, dN^)
 
 
 struct NurbsSurface(Copyable, Movable, Surface):
@@ -84,7 +84,7 @@ struct NurbsSurface(Copyable, Movable, Surface):
     var _degree_v: Int
     var weights: List[List[FType]]
 
-    fn __init__(
+    def __init__(
         out self,
         control_points: List[List[Point]],
         knots_u: List[FType],
@@ -100,21 +100,21 @@ struct NurbsSurface(Copyable, Movable, Surface):
         self._degree_v = degree_v
         self.weights = weights.copy()
 
-    fn num_control_points_u(self) -> Int:
+    def num_control_points_u(self) -> Int:
         return len(self.control_points)
 
-    fn num_control_points_v(self) -> Int:
+    def num_control_points_v(self) -> Int:
         if len(self.control_points) == 0:
             return 0
         return len(self.control_points[0])
 
-    fn degree_u(self) -> Int:
+    def degree_u(self) -> Int:
         return self._degree_u
 
-    fn degree_v(self) -> Int:
+    def degree_v(self) -> Int:
         return self._degree_v
 
-    fn point_at(self, u: FType, v: FType) -> Point:
+    def point_at(self, u: FType, v: FType) -> Point:
         """Evaluate NURBS surface at (u, v) using tensor product B-spline."""
         var n_u = self.num_control_points_u()
         var n_v = self.num_control_points_v()
@@ -147,7 +147,7 @@ struct NurbsSurface(Copyable, Movable, Surface):
             return Point(0.0, 0.0, 0.0)
         return Point(wx / wsum, wy / wsum, wz / wsum)
 
-    fn partial_u(self, u: FType, v: FType) -> Vector3:
+    def partial_u(self, u: FType, v: FType) -> Vector3:
         """Partial derivative in u direction via central finite differences."""
         var h: FType = 1e-6
         var u0 = u - h if u - h >= self.knots_u[0] else u
@@ -159,7 +159,7 @@ struct NurbsSurface(Copyable, Movable, Surface):
         var p1 = self.point_at(u1, v)
         return Vector3((p1.x - p0.x) / step, (p1.y - p0.y) / step, (p1.z - p0.z) / step)
 
-    fn partial_v(self, u: FType, v: FType) -> Vector3:
+    def partial_v(self, u: FType, v: FType) -> Vector3:
         """Partial derivative in v direction via central finite differences."""
         var h: FType = 1e-6
         var v0 = v - h if v - h >= self.knots_v[0] else v
@@ -171,7 +171,7 @@ struct NurbsSurface(Copyable, Movable, Surface):
         var p1 = self.point_at(u, v1)
         return Vector3((p1.x - p0.x) / step, (p1.y - p0.y) / step, (p1.z - p0.z) / step)
 
-    fn normal_at(self, u: FType, v: FType) -> Vector3:
+    def normal_at(self, u: FType, v: FType) -> Vector3:
         """Surface normal = cross product of partial derivatives."""
         var du = self.partial_u(u, v)
         var dv = self.partial_v(u, v)
@@ -181,7 +181,7 @@ struct NurbsSurface(Copyable, Movable, Surface):
             return Vector3(0.0, 0.0, 1.0)
         return n / length
 
-    fn area(self) -> FType:
+    def area(self) -> FType:
         """Numerical area via 10x10 sampling (midpoint rule)."""
         var n_u_knots = len(self.knots_u)
         var n_v_knots = len(self.knots_v)
@@ -206,7 +206,7 @@ struct NurbsSurface(Copyable, Movable, Surface):
 
         return total
 
-    fn is_planar(self) -> Bool:
+    def is_planar(self) -> Bool:
         """Check if all control points are coplanar."""
         var n_u = self.num_control_points_u()
         var n_v = self.num_control_points_v()
@@ -237,7 +237,7 @@ struct NurbsSurface(Copyable, Movable, Surface):
                     return False
         return True
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         return (
             "NurbsSurface(nu="
             + String(self.num_control_points_u())

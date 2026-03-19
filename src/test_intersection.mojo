@@ -2,25 +2,25 @@ from geokernel import FType, Point, Vector3, Line, Face
 from geokernel import line_face_intersection, point_in_solid_ray_cast
 
 
-fn assert_true(val: Bool, msg: String) raises:
+def assert_true(val: Bool, msg: String) raises:
     if not val:
         raise Error("FAIL: " + msg)
     print("PASS:", msg)
 
 
-fn assert_false(val: Bool, msg: String) raises:
+def assert_false(val: Bool, msg: String) raises:
     if val:
         raise Error("FAIL: " + msg)
     print("PASS:", msg)
 
 
-fn assert_close(a: FType, b: FType, msg: String, tol: FType = 1e-9) raises:
+def assert_close(a: FType, b: FType, msg: String, tol: FType = 1e-9) raises:
     if abs(a - b) > tol:
         raise Error("FAIL: " + msg + " got " + String(a) + " expected " + String(b))
     print("PASS:", msg)
 
 
-fn make_cube_faces() -> List[Face]:
+def make_cube_faces() -> List[Face]:
     """Build all 6 faces of the unit cube [0,1]^3 with outward normals."""
     var faces = List[Face]()
 
@@ -75,7 +75,7 @@ fn make_cube_faces() -> List[Face]:
     return faces.copy()
 
 
-fn main() raises:
+def main() raises:
     print("=== test_intersection.mojo ===")
 
     # ------------------------------------------------------------------

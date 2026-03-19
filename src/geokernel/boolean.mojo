@@ -5,7 +5,7 @@ from geokernel import FType, Point, Vector3, Face, Cell, Plane
 # Sutherland-Hodgman polygon clipping (convex clip polygon)
 # ---------------------------------------------------------------------------
 
-fn _intersect_edge_plane(
+def _intersect_edge_plane(
     a: Point, b: Point, c: Point, d: Point
 ) -> Point:
     """Compute intersection of segment ab with the infinite line cd (2D via xy)."""
@@ -33,12 +33,12 @@ fn _intersect_edge_plane(
     return Point(ix, iy, iz)
 
 
-fn _inside_half_plane(p: Point, a: Point, b: Point) -> Bool:
+def _inside_half_plane(p: Point, a: Point, b: Point) -> Bool:
     """Return True if p is on the left side (or on) the directed edge a->b (2D test)."""
     return (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x) >= -1e-15
 
 
-fn clip_polygon(subject: List[Point], clip: List[Point]) -> List[Point]:
+def clip_polygon(subject: List[Point], clip: List[Point]) -> List[Point]:
     """Sutherland-Hodgman polygon clipping.
     Both polygons must be convex and lie in the same plane (Z ignored for clipping edge).
     Returns clipped polygon vertices (open list, last != first)."""
@@ -75,7 +75,7 @@ fn clip_polygon(subject: List[Point], clip: List[Point]) -> List[Point]:
 # Helpers
 # ---------------------------------------------------------------------------
 
-fn _face_to_open_points(f: Face) -> List[Point]:
+def _face_to_open_points(f: Face) -> List[Point]:
     """Return vertices of a Face as an open list (last != first)."""
     var pts = List[Point]()
     var n = f.num_vertices()
@@ -84,7 +84,7 @@ fn _face_to_open_points(f: Face) -> List[Point]:
     return pts^
 
 
-fn _normals_parallel(a: Face, b: Face, atol: FType = 1e-10) -> Bool:
+def _normals_parallel(a: Face, b: Face, atol: FType = 1e-10) -> Bool:
     """Return True if the two face normals are parallel (same or opposite)."""
     var na = a.normal().normalize()
     var nb = b.normal().normalize()
@@ -92,7 +92,7 @@ fn _normals_parallel(a: Face, b: Face, atol: FType = 1e-10) -> Bool:
     return cross.length() < atol
 
 
-fn _coplanar_check(a: Face, b: Face, atol: FType = 1e-10) -> Bool:
+def _coplanar_check(a: Face, b: Face, atol: FType = 1e-10) -> Bool:
     """Return True if a and b lie on the same plane."""
     if not _normals_parallel(a, b, atol):
         return False
@@ -105,7 +105,7 @@ fn _coplanar_check(a: Face, b: Face, atol: FType = 1e-10) -> Bool:
 # 2D Face boolean operations (coplanar convex faces)
 # ---------------------------------------------------------------------------
 
-fn intersect_faces(a: Face, b: Face) -> Face:
+def intersect_faces(a: Face, b: Face) -> Face:
     """Return the intersection of two coplanar convex faces.
     Returns an empty Face (0 vertices) if disjoint or not coplanar."""
     if not _coplanar_check(a, b):
@@ -121,7 +121,7 @@ fn intersect_faces(a: Face, b: Face) -> Face:
     return Face(result)
 
 
-fn union_faces(a: Face, b: Face) -> List[Face]:
+def union_faces(a: Face, b: Face) -> List[Face]:
     """Return the union of two coplanar convex faces.
     If they overlap returns one merged face; if disjoint returns both originals."""
     if not _coplanar_check(a, b):
@@ -151,7 +151,7 @@ fn union_faces(a: Face, b: Face) -> List[Face]:
     return result^
 
 
-fn difference_faces(a: Face, b: Face) -> List[Face]:
+def difference_faces(a: Face, b: Face) -> List[Face]:
     """Return a minus b for two coplanar convex faces.
     Returns at most one face (the clipped remainder).
     For concave differences a proper decomposition would be needed; this returns the
@@ -191,7 +191,7 @@ fn difference_faces(a: Face, b: Face) -> List[Face]:
 # Convex hull helper (2D, projected onto face plane)
 # ---------------------------------------------------------------------------
 
-fn _convex_hull_2d(pts: List[Point], normal: Vector3) -> List[Point]:
+def _convex_hull_2d(pts: List[Point], normal: Vector3) -> List[Point]:
     """Compute convex hull of pts projected onto the plane with the given normal.
     Returns hull vertices in CCW order (3D points on the original plane)."""
     if len(pts) == 0:
@@ -277,21 +277,21 @@ fn _convex_hull_2d(pts: List[Point], normal: Vector3) -> List[Point]:
 # 3D solid boolean stubs
 # ---------------------------------------------------------------------------
 
-fn union_cells(a: Cell, b: Cell) -> Cell:
+def union_cells(a: Cell, b: Cell) -> Cell:
     """TODO: 3D union stub — returns a unchanged."""
     return a  # TODO
 
 
-fn intersect_cells(a: Cell, b: Cell) -> Cell:
+def intersect_cells(a: Cell, b: Cell) -> Cell:
     """TODO: 3D intersection stub — returns empty Cell."""
     return Cell(List[Face]())  # TODO
 
 
-fn difference_cells(a: Cell, b: Cell) -> Cell:
+def difference_cells(a: Cell, b: Cell) -> Cell:
     """TODO: 3D difference stub — returns a unchanged."""
     return a  # TODO
 
 
-fn slice_cell(c: Cell, p: Plane) -> Tuple[Cell, Cell]:
+def slice_cell(c: Cell, p: Plane) -> Tuple[Cell, Cell]:
     """TODO: 3D slice stub — returns (c, empty Cell)."""
     return (c, Cell(List[Face]()))  # TODO

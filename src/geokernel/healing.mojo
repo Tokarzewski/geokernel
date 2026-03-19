@@ -6,7 +6,7 @@ from geokernel import FType, Point, Face, Shell, Vector3
 # ---------------------------------------------------------------------------
 
 
-fn _dist_sq(a: Point, b: Point) -> FType:
+def _dist_sq(a: Point, b: Point) -> FType:
     var dx = a.x - b.x
     var dy = a.y - b.y
     var dz = a.z - b.z
@@ -17,7 +17,7 @@ fn _dist_sq(a: Point, b: Point) -> FType:
 # 1. Merge coincident vertices
 # ---------------------------------------------------------------------------
 
-fn merge_coincident_vertices(shell: Shell, tol: Float64 = 1e-6) -> Shell:
+def merge_coincident_vertices(shell: Shell, tol: Float64 = 1e-6) -> Shell:
     """Find all vertices in the shell that are within *tol* distance of each
     other and unify them to a single canonical position.
 
@@ -50,7 +50,7 @@ fn merge_coincident_vertices(shell: Shell, tol: Float64 = 1e-6) -> Shell:
     for i in range(n):
         parent.append(i)
 
-    fn find(mut parent: List[Int], i: Int) -> Int:
+    def find(mut parent: List[Int], i: Int) -> Int:
         var root = i
         while parent[root] != root:
             root = parent[root]
@@ -147,7 +147,7 @@ fn merge_coincident_vertices(shell: Shell, tol: Float64 = 1e-6) -> Shell:
 # 2. Remove degenerate edges
 # ---------------------------------------------------------------------------
 
-fn remove_degenerate_edges(shell: Shell, tol: Float64 = 1e-9) -> Shell:
+def remove_degenerate_edges(shell: Shell, tol: Float64 = 1e-9) -> Shell:
     """Remove faces that have any edge shorter than *tol* (degenerate faces).
 
     For a simple repair pass, a face with a zero-length edge is collapsed; the
@@ -178,7 +178,7 @@ fn remove_degenerate_edges(shell: Shell, tol: Float64 = 1e-9) -> Shell:
 # 3. Close shell gaps
 # ---------------------------------------------------------------------------
 
-fn close_shell_gaps(shell: Shell, tol: Float64 = 1e-4) -> Shell:
+def close_shell_gaps(shell: Shell, tol: Float64 = 1e-4) -> Shell:
     """Attempt to close small gaps in a shell by snapping nearby open boundary edges.
 
     Algorithm:
@@ -243,7 +243,7 @@ fn close_shell_gaps(shell: Shell, tol: Float64 = 1e-4) -> Shell:
     for i in range(len(boundary_pts)):
         parent.append(i)
 
-    fn find(mut parent: List[Int], i: Int) -> Int:
+    def find(mut parent: List[Int], i: Int) -> Int:
         var root = i
         while parent[root] != root:
             root = parent[root]
@@ -326,7 +326,7 @@ fn close_shell_gaps(shell: Shell, tol: Float64 = 1e-4) -> Shell:
 # 4. Fix face normals
 # ---------------------------------------------------------------------------
 
-fn fix_face_normals(shell: Shell) -> Shell:
+def fix_face_normals(shell: Shell) -> Shell:
     """Ensure all face normals point consistently outward for a closed shell.
 
     Algorithm
