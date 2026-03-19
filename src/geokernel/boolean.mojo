@@ -24,11 +24,8 @@ def _intersect_edge_plane(
     # Interpolate z linearly along ab
     var dx = b.x - a.x
     var dy = b.y - a.y
-    var t: FType = 0.0
-    if abs(dx) > abs(dy):
-        t = (ix - a.x) / dx if abs(dx) > 1e-15 else 0.0
-    else:
-        t = (iy - a.y) / dy if abs(dy) > 1e-15 else 0.0
+    var t = ((ix - a.x) / dx if abs(dx) > 1e-15 else 0.0) if abs(dx) > abs(dy)
+        else ((iy - a.y) / dy if abs(dy) > 1e-15 else 0.0)
     var iz = a.z + t * (b.z - a.z)
     return Point(ix, iy, iz)
 

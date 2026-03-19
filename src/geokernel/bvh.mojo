@@ -82,13 +82,9 @@ struct BVH(Copyable, Movable, ImplicitlyCopyable):
             axis = 2
 
         # Midpoint on longest axis
-        var mid: Float64 = 0.0
-        if axis == 0:
-            mid = (node_aabb.p_min.x + node_aabb.p_max.x) * 0.5
-        elif axis == 1:
-            mid = (node_aabb.p_min.y + node_aabb.p_max.y) * 0.5
-        else:
-            mid = (node_aabb.p_min.z + node_aabb.p_max.z) * 0.5
+        var mid = (node_aabb.p_min.x + node_aabb.p_max.x) * 0.5 if axis == 0
+            else (node_aabb.p_min.y + node_aabb.p_max.y) * 0.5 if axis == 1
+            else (node_aabb.p_min.z + node_aabb.p_max.z) * 0.5
 
         # Split indices by centroid on the chosen axis
         var left_indices = List[Int]()
@@ -97,13 +93,9 @@ struct BVH(Copyable, Movable, ImplicitlyCopyable):
         for i in range(len(indices)):
             var idx = indices[i]
             var b = aabbs[idx]
-            var centroid: Float64 = 0.0
-            if axis == 0:
-                centroid = (b.p_min.x + b.p_max.x) * 0.5
-            elif axis == 1:
-                centroid = (b.p_min.y + b.p_max.y) * 0.5
-            else:
-                centroid = (b.p_min.z + b.p_max.z) * 0.5
+            var centroid = (b.p_min.x + b.p_max.x) * 0.5 if axis == 0
+                else (b.p_min.y + b.p_max.y) * 0.5 if axis == 1
+                else (b.p_min.z + b.p_max.z) * 0.5
 
             if centroid < mid:
                 left_indices.append(idx)

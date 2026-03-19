@@ -300,12 +300,8 @@ def _clip_polygon_by_halfplane(
         # Interpolate t along p1->p2
         var dx = b2d[0] - a2d[0]
         var dy = b2d[1] - a2d[1]
-        var t: FType = 0.0
-        if abs(dx) > abs(dy):
-            t = (ix - a2d[0]) / dx if abs(dx) > 1e-15 else 0.0
-        else:
-            t = (iy - a2d[1]) / dy if abs(dy) > 1e-15 else 0.0
-        var iz = p1.z + t * (p2.z - p1.z)
+        var t = ((ix - a2d[0]) / dx if abs(dx) > 1e-15 else 0.0) if abs(dx) > abs(dy)
+            else ((iy - a2d[1]) / dy if abs(dy) > 1e-15 else 0.0)
         # Reconstruct 3D point from 2D coords
         var pt = origin + Vector3.to_point(u * ix + v * iy)
         return Point(pt.x, pt.y, p1.z + t * (p2.z - p1.z))
@@ -441,63 +437,7 @@ def intersect_faces(f1: Face, f2: Face, atol: FType = 1e-10) -> Optional[Wire]:
             var pz = (a11 * d2 - a21 * d1) / det
             pt_on_line = Point(0.0, py, pz)
 
-        # Parametrise: points on intersection line = pt_on_line + t * line_dir
-        # For each face, project its edges onto the line and collect t-intervals
-        def face_t_interval(face: Face) -> Optional[Tuple[FType, FType]]:
-            """Compute the parameter interval [t_min, t_max] where the intersection
-            line passes through the face (via edge crossings)."""
-            var t_vals = List[FType]()
-            var nv = face.num_vertices()
-            var n_face = face.normal().normalize()
-
-            for ei in range(nv):
-                var ea = face.get_vertex(ei)
-                var eb = face.get_vertex((ei + 1) % nv)
-                # Project ea, eb onto the plane's line direction
-                # First: how far each endpoint is above/below the intersection line's plane
-                # We check if edge ea->eb crosses the "half-plane" boundary.
-                # Actually, clip the edge against the intersection line parameter:
-                # The intersection line lies in the plane of f1 AND f2.
-                # For a given face, an edge crosses the line if the two endpoints
-                # are on opposite sides of the line (in 3D, use another plane through line).
-                # Easier: parametrise the segment ea->eb, find where it hits the line.
-                # Since the intersection line is in both planes, for face edges we want
-                # where the edge (a 3D segment) is closest to the intersection line.
-                # Better approach: project face vertices onto line direction parameter t,
-                # then check if the face "contains" the line.
-
-                # Use: for face f, find all edge-intersection-line crossings:
-                # Edge ea->eb parametrised as ea + s*(eb-ea), s in [0,1].
-                # The intersection line: pt_on_line + t*line_dir.
-                # These are nearest-approach computation: if distance < atol → crossing.
-
-                # Simpler: project each vertex onto line direction t, and for each edge
-                # check if the edge actually intersects the plane of the OTHER face at some t.
-                # We'll collect t-params of where each face's edges cross the intersection line.
-
-                # For a face edge to "see" the intersection line, we project the edge
-                # onto the line's direction parameter. The edge lies in the face plane.
-                # Find the t where the edge crosses the intersection line direction:
-                # Parametric: P(s) = ea + s*(eb-ea)
-                # Distance to line (pt_on_line, line_dir): 
-                #   vec = P(s) - pt_on_line
-                #   component perp to line_dir = vec - (vec·line_dir)*line_dir
-                # Minimize distance → solve for s where perp component = 0... complex.
-                # 
-                # Cleaner: The intersection line is the intersection of the two planes.
-                # For face edges, we can check if the edge crosses the intersection line
-                # by testing the signed distance of each endpoint to the OTHER face's plane.
-                # If opposite signs → the edge crosses the plane → compute crossing t.
-                pass
-
-            # Alternative: use the plane of the other face to clip face edges
-            return None
-
-        # Use plane-based clipping: project each face's edges against the other plane
-        # to find where the intersection line enters/exits each face.
-
-        # For f1: clip its edges against plane of f2 → collect t-values on line_dir
-        # For f2: clip its edges against plane of f1 → collect t-values on line_dir
+        # Clip each face's edges against the other's plane to find intersection t-values
 
         def collect_edge_crossings(face: Face, plane_n: Vector3, plane_d: FType) -> List[FType]:
             """Find t-params where face edges cross the given plane."""
