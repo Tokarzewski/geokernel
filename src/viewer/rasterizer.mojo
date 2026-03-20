@@ -84,6 +84,141 @@ def draw_line(mut fb: Framebuffer, x0: Int, y0: Int, x1: Int, y1: Int, color: UI
             cy += sy
 
 
+def draw_char(mut fb: Framebuffer, cx: Int, cy: Int, ch: String, color: UInt32):
+    """Draw a single character at (cx, cy) using a built-in 5x7 bitmap font."""
+    # 5x7 font data — each character is 7 rows of 5-bit patterns (MSB left)
+    # Space to ~, ASCII 32-126. We store as List[UInt8] per character (7 bytes).
+    var code = 0
+    if len(ch) > 0:
+        code = Int(ord(ch))
+    if code < 32 or code > 126:
+        return  # unprintable
+
+    # Minimal font: only define the chars we actually need for diagnostics
+    # Each row is 5 bits packed into a UInt8 (bits 4..0, left to right)
+    var glyph = List[UInt8]()
+    for _ in range(7):
+        glyph.append(UInt8(0))
+
+    if ch == " ":
+        pass  # all zeros
+    elif ch == "0":
+        glyph[0] = 0b01110; glyph[1] = 0b10001; glyph[2] = 0b10011
+        glyph[3] = 0b10101; glyph[4] = 0b11001; glyph[5] = 0b10001; glyph[6] = 0b01110
+    elif ch == "1":
+        glyph[0] = 0b00100; glyph[1] = 0b01100; glyph[2] = 0b00100
+        glyph[3] = 0b00100; glyph[4] = 0b00100; glyph[5] = 0b00100; glyph[6] = 0b01110
+    elif ch == "2":
+        glyph[0] = 0b01110; glyph[1] = 0b10001; glyph[2] = 0b00001
+        glyph[3] = 0b00110; glyph[4] = 0b01000; glyph[5] = 0b10000; glyph[6] = 0b11111
+    elif ch == "3":
+        glyph[0] = 0b01110; glyph[1] = 0b10001; glyph[2] = 0b00001
+        glyph[3] = 0b00110; glyph[4] = 0b00001; glyph[5] = 0b10001; glyph[6] = 0b01110
+    elif ch == "4":
+        glyph[0] = 0b00010; glyph[1] = 0b00110; glyph[2] = 0b01010
+        glyph[3] = 0b10010; glyph[4] = 0b11111; glyph[5] = 0b00010; glyph[6] = 0b00010
+    elif ch == "5":
+        glyph[0] = 0b11111; glyph[1] = 0b10000; glyph[2] = 0b11110
+        glyph[3] = 0b00001; glyph[4] = 0b00001; glyph[5] = 0b10001; glyph[6] = 0b01110
+    elif ch == "6":
+        glyph[0] = 0b00110; glyph[1] = 0b01000; glyph[2] = 0b10000
+        glyph[3] = 0b11110; glyph[4] = 0b10001; glyph[5] = 0b10001; glyph[6] = 0b01110
+    elif ch == "7":
+        glyph[0] = 0b11111; glyph[1] = 0b00001; glyph[2] = 0b00010
+        glyph[3] = 0b00100; glyph[4] = 0b01000; glyph[5] = 0b01000; glyph[6] = 0b01000
+    elif ch == "8":
+        glyph[0] = 0b01110; glyph[1] = 0b10001; glyph[2] = 0b10001
+        glyph[3] = 0b01110; glyph[4] = 0b10001; glyph[5] = 0b10001; glyph[6] = 0b01110
+    elif ch == "9":
+        glyph[0] = 0b01110; glyph[1] = 0b10001; glyph[2] = 0b10001
+        glyph[3] = 0b01111; glyph[4] = 0b00001; glyph[5] = 0b00010; glyph[6] = 0b01100
+    elif ch == ".":
+        glyph[5] = 0b00000; glyph[6] = 0b00100
+    elif ch == ":":
+        glyph[2] = 0b00100; glyph[5] = 0b00100
+    elif ch == "-":
+        glyph[3] = 0b11111
+    elif ch == "/":
+        glyph[0] = 0b00001; glyph[1] = 0b00010; glyph[2] = 0b00100
+        glyph[3] = 0b01000; glyph[4] = 0b10000
+    elif ch == "x":
+        glyph[2] = 0b10001; glyph[3] = 0b01010; glyph[4] = 0b00100
+        glyph[5] = 0b01010; glyph[6] = 0b10001
+    elif ch == "|":
+        glyph[0] = 0b00100; glyph[1] = 0b00100; glyph[2] = 0b00100
+        glyph[3] = 0b00100; glyph[4] = 0b00100; glyph[5] = 0b00100; glyph[6] = 0b00100
+    elif ch == "(":
+        glyph[0] = 0b00010; glyph[1] = 0b00100; glyph[2] = 0b01000
+        glyph[3] = 0b01000; glyph[4] = 0b01000; glyph[5] = 0b00100; glyph[6] = 0b00010
+    elif ch == ")":
+        glyph[0] = 0b01000; glyph[1] = 0b00100; glyph[2] = 0b00010
+        glyph[3] = 0b00010; glyph[4] = 0b00010; glyph[5] = 0b00100; glyph[6] = 0b01000
+    elif ch == "A" or ch == "a":
+        glyph[0] = 0b01110; glyph[1] = 0b10001; glyph[2] = 0b10001
+        glyph[3] = 0b11111; glyph[4] = 0b10001; glyph[5] = 0b10001; glyph[6] = 0b10001
+    elif ch == "C" or ch == "c":
+        glyph[0] = 0b01110; glyph[1] = 0b10001; glyph[2] = 0b10000
+        glyph[3] = 0b10000; glyph[4] = 0b10000; glyph[5] = 0b10001; glyph[6] = 0b01110
+    elif ch == "D" or ch == "d":
+        glyph[0] = 0b11100; glyph[1] = 0b10010; glyph[2] = 0b10001
+        glyph[3] = 0b10001; glyph[4] = 0b10001; glyph[5] = 0b10010; glyph[6] = 0b11100
+    elif ch == "E" or ch == "e":
+        glyph[0] = 0b11111; glyph[1] = 0b10000; glyph[2] = 0b10000
+        glyph[3] = 0b11110; glyph[4] = 0b10000; glyph[5] = 0b10000; glyph[6] = 0b11111
+    elif ch == "F" or ch == "f":
+        glyph[0] = 0b11111; glyph[1] = 0b10000; glyph[2] = 0b10000
+        glyph[3] = 0b11110; glyph[4] = 0b10000; glyph[5] = 0b10000; glyph[6] = 0b10000
+    elif ch == "H" or ch == "h":
+        glyph[0] = 0b10001; glyph[1] = 0b10001; glyph[2] = 0b10001
+        glyph[3] = 0b11111; glyph[4] = 0b10001; glyph[5] = 0b10001; glyph[6] = 0b10001
+    elif ch == "I" or ch == "i":
+        glyph[0] = 0b01110; glyph[1] = 0b00100; glyph[2] = 0b00100
+        glyph[3] = 0b00100; glyph[4] = 0b00100; glyph[5] = 0b00100; glyph[6] = 0b01110
+    elif ch == "M" or ch == "m":
+        glyph[0] = 0b10001; glyph[1] = 0b11011; glyph[2] = 0b10101
+        glyph[3] = 0b10101; glyph[4] = 0b10001; glyph[5] = 0b10001; glyph[6] = 0b10001
+    elif ch == "N" or ch == "n":
+        glyph[0] = 0b10001; glyph[1] = 0b11001; glyph[2] = 0b10101
+        glyph[3] = 0b10011; glyph[4] = 0b10001; glyph[5] = 0b10001; glyph[6] = 0b10001
+    elif ch == "O" or ch == "o":
+        glyph[0] = 0b01110; glyph[1] = 0b10001; glyph[2] = 0b10001
+        glyph[3] = 0b10001; glyph[4] = 0b10001; glyph[5] = 0b10001; glyph[6] = 0b01110
+    elif ch == "P" or ch == "p":
+        glyph[0] = 0b11110; glyph[1] = 0b10001; glyph[2] = 0b10001
+        glyph[3] = 0b11110; glyph[4] = 0b10000; glyph[5] = 0b10000; glyph[6] = 0b10000
+    elif ch == "R" or ch == "r":
+        glyph[0] = 0b11110; glyph[1] = 0b10001; glyph[2] = 0b10001
+        glyph[3] = 0b11110; glyph[4] = 0b10100; glyph[5] = 0b10010; glyph[6] = 0b10001
+    elif ch == "S" or ch == "s":
+        glyph[0] = 0b01110; glyph[1] = 0b10001; glyph[2] = 0b10000
+        glyph[3] = 0b01110; glyph[4] = 0b00001; glyph[5] = 0b10001; glyph[6] = 0b01110
+    elif ch == "T" or ch == "t":
+        glyph[0] = 0b11111; glyph[1] = 0b00100; glyph[2] = 0b00100
+        glyph[3] = 0b00100; glyph[4] = 0b00100; glyph[5] = 0b00100; glyph[6] = 0b00100
+    elif ch == "V" or ch == "v":
+        glyph[0] = 0b10001; glyph[1] = 0b10001; glyph[2] = 0b10001
+        glyph[3] = 0b10001; glyph[4] = 0b01010; glyph[5] = 0b01010; glyph[6] = 0b00100
+    elif ch == "W" or ch == "w":
+        glyph[0] = 0b10001; glyph[1] = 0b10001; glyph[2] = 0b10001
+        glyph[3] = 0b10101; glyph[4] = 0b10101; glyph[5] = 0b11011; glyph[6] = 0b10001
+    elif ch == "Z" or ch == "z":
+        glyph[0] = 0b11111; glyph[1] = 0b00001; glyph[2] = 0b00010
+        glyph[3] = 0b00100; glyph[4] = 0b01000; glyph[5] = 0b10000; glyph[6] = 0b11111
+
+    for row in range(7):
+        for col in range(5):
+            if (Int(glyph[row]) >> (4 - col)) & 1 == 1:
+                fb.set_pixel_no_depth(cx + col, cy + row, color)
+
+
+def draw_text(mut fb: Framebuffer, x: Int, y: Int, text: String, color: UInt32):
+    """Draw a string at (x, y) using the built-in bitmap font. 6px char width."""
+    var cursor_x = x
+    for i in range(len(text)):
+        draw_char(fb, cursor_x, y, String(text[byte=i]), color)
+        cursor_x += 6
+
+
 def fill_triangle(mut fb: Framebuffer,
                   x0: Int, y0: Int, z0: FType,
                   x1: Int, y1: Int, z1: FType,

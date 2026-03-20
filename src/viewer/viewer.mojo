@@ -1,7 +1,8 @@
 from std.python import PythonObject, Python
+from std.time import perf_counter_ns
 from geokernel import Shell, Face, Point, FType
 from .camera import Camera
-from .rasterizer import Framebuffer, make_color
+from .rasterizer import Framebuffer, make_color, draw_text
 from .renderer import Renderer
 from .window import SDLWindow
 
@@ -70,6 +71,7 @@ def run_viewer(shell: Shell, title: String = "geokernel viewer",
     var win = SDLWindow(title, width, height)
 
     # SDL scancodes
+    var SDL_SCANCODE_D = 7
     var SDL_SCANCODE_Q = 20
     var SDL_SCANCODE_W = 26
     var SDL_SCANCODE_S = 22
@@ -79,9 +81,20 @@ def run_viewer(shell: Shell, title: String = "geokernel viewer",
     var left_button_down = False
     var right_button_down = False
 
+    # Diagnostics
+    var show_diag = False
+    var frame_count = 0
+    var fps_display: FType = 0.0
+    var fps_timer = perf_counter_ns()
+    var render_ms = FType(0)
+    var num_faces = len(shell.faces)
+    var num_verts = 0
+    for fi in range(num_faces):
+        num_verts += shell.faces[fi].num_vertices()
+
     print("geokernel viewer started")
     print("  Left drag: orbit | Right drag: pan | Wheel: zoom")
-    print("  W: wireframe | S: shaded | Q/ESC: quit")
+    print("  W: wireframe | S: shaded | D: diagnostics | Q/ESC: quit")
 
     while win.is_open:
         # Poll events via Python helper
@@ -109,6 +122,8 @@ def run_viewer(shell: Shell, title: String = "geokernel viewer",
                     renderer.set_wireframe()
                 elif key == SDL_SCANCODE_S:
                     renderer.set_shaded()
+                elif key == SDL_SCANCODE_D:
+                    show_diag = not show_diag
 
             elif kind == 5:  # MOUSEBUTTONDOWN
                 if button == 1:
@@ -133,7 +148,50 @@ def run_viewer(shell: Shell, title: String = "geokernel viewer",
 
         # Render
         fb.clear()
+        var t_render_start = perf_counter_ns()
         renderer.render_shell(shell, camera, fb)
+        var t_render_end = perf_counter_ns()
+        render_ms = FType(t_render_end - t_render_start) / 1e6
+
+        # FPS counter (update every 30 frames)
+        frame_count += 1
+        if frame_count >= 30:
+            var now = perf_counter_ns()
+            var elapsed = FType(now - fps_timer) / 1e9
+            if elapsed > 0.0:
+                fps_display = FType(frame_count) / elapsed
+            fps_timer = now
+            frame_count = 0
+
+        # Diagnostics overlay
+        if show_diag:
+            var diag_color = make_color(0, 255, 0)  # green text
+
+            # Semi-transparent background strip
+            for py in range(2, 72):
+                for px in range(2, 200):
+                    fb.set_pixel_no_depth(px, py, UInt32(0xFF101010))
+
+            # FPS
+            var fps_int = Int(fps_display)
+            draw_text(fb, 6, 5, "FPS: " + String(fps_int), diag_color)
+
+            # Render time
+            var ms_int = Int(render_ms * 100.0)
+            var ms_str = String(ms_int / 100) + "." + String(ms_int % 100)
+            draw_text(fb, 6, 15, "Render: " + ms_str + " ms", diag_color)
+
+            # Mode
+            var mode_str = "wireframe" if renderer.mode.value == 0 else "shaded"
+            draw_text(fb, 6, 25, "Mode: " + mode_str, diag_color)
+
+            # Geometry stats
+            draw_text(fb, 6, 35, "Faces: " + String(num_faces), diag_color)
+            draw_text(fb, 6, 45, "Verts: " + String(num_verts), diag_color)
+
+            # Resolution
+            draw_text(fb, 6, 55, String(width) + "x" + String(height), diag_color)
+
         win.update_texture(fb)
 
         # ~60fps cap
