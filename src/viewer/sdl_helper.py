@@ -84,9 +84,10 @@ class SDLHelper:
         self.sdl.SDL_RenderPresent(ctypes.c_void_p(self.renderer))
 
     def poll_events(self) -> list:
-        """Poll SDL events. Returns list of (kind, key, mx, my, wheel_y, button) tuples.
+        """Poll SDL events. Returns list of (kind, key, mx, my, wheel_y, button, modifiers) tuples.
 
         kind: 0=none, 1=quit, 2=keydown, 3=mousemotion, 4=mousewheel, 5=buttondown, 6=buttonup
+        modifiers: bitmask — 1=Ctrl, 2=Shift, 4=Alt
         """
         events = []
         while self.sdl.SDL_PollEvent(self._event_ptr):
@@ -99,13 +100,22 @@ class SDLHelper:
             my = 0
             wheel_y = 0
             button = 0
+            modifiers = 0
 
             if event_type == 0x100:  # SDL_QUIT
                 kind = 1
             elif event_type == 0x300:  # SDL_KEYDOWN
                 scancode = struct.unpack_from("<I", raw, 16)[0]
+                mod = struct.unpack_from("<H", raw, 24)[0]
                 kind = 2
                 key = scancode
+                # Map SDL keymods to simple bitmask
+                if mod & 0x00C0:  # KMOD_CTRL (LCTRL|RCTRL)
+                    modifiers |= 1
+                if mod & 0x0003:  # KMOD_SHIFT (LSHIFT|RSHIFT)
+                    modifiers |= 2
+                if mod & 0x0300:  # KMOD_ALT (LALT|RALT)
+                    modifiers |= 4
             elif event_type == 0x400:  # SDL_MOUSEMOTION
                 xrel = struct.unpack_from("<i", raw, 24)[0]
                 yrel = struct.unpack_from("<i", raw, 28)[0]
@@ -127,7 +137,7 @@ class SDLHelper:
                 kind = 4
                 wheel_y = wy
 
-            events.append((kind, key, mx, my, wheel_y, button))
+            events.append((kind, key, mx, my, wheel_y, button, modifiers))
 
         return events
 

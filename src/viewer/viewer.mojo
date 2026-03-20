@@ -17,6 +17,7 @@ def run_viewer(shell: Shell, title: String = "geokernel viewer",
       Mouse wheel: zoom
       W: wireframe mode
       S: shaded mode
+      Ctrl+D: toggle diagnostics overlay
       Q / ESC: quit
     """
     # Compute bounding box center for initial camera target
@@ -94,7 +95,7 @@ def run_viewer(shell: Shell, title: String = "geokernel viewer",
 
     print("geokernel viewer started")
     print("  Left drag: orbit | Right drag: pan | Wheel: zoom")
-    print("  W: wireframe | S: shaded | D: diagnostics | Q/ESC: quit")
+    print("  W: wireframe | S: shaded | Ctrl+D: diagnostics | Q/ESC: quit")
 
     while win.is_open:
         # Poll events via Python helper
@@ -104,13 +105,14 @@ def run_viewer(shell: Shell, title: String = "geokernel viewer",
 
         for i in range(num_events):
             var ev = py_events[i]
-            # Each event is a tuple: (kind, key, mx, my, wheel_y, button)
+            # Each event is a tuple: (kind, key, mx, my, wheel_y, button, modifiers)
             var kind = Int(py=ev[0])
             var key = Int(py=ev[1])
             var mx = Int(py=ev[2])
             var my = Int(py=ev[3])
             var wheel_y = Int(py=ev[4])
             var button = Int(py=ev[5])
+            var mods = Int(py=ev[6])
 
             if kind == 1:  # QUIT
                 win.is_open = False
@@ -122,7 +124,7 @@ def run_viewer(shell: Shell, title: String = "geokernel viewer",
                     renderer.set_wireframe()
                 elif key == SDL_SCANCODE_S:
                     renderer.set_shaded()
-                elif key == SDL_SCANCODE_D:
+                elif key == SDL_SCANCODE_D and (mods & 1) == 1:  # Ctrl+D
                     show_diag = not show_diag
 
             elif kind == 5:  # MOUSEBUTTONDOWN
