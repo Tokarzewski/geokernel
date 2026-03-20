@@ -1,14 +1,16 @@
 from std.python import PythonObject, Python
 from std.time import perf_counter_ns
-from geokernel import Shell, Face, Point, FType
+from geokernel import Shell, Face, Point, FType, import_obj
+from geokernel.stl import import_stl_ascii
 from .camera import Camera
 from .rasterizer import Framebuffer, make_color, draw_text
 from .renderer import Renderer
 from .window import SDLWindow
 
 
-def run_viewer(shell: Shell, title: String = "geokernel viewer",
-               width: Int = 800, height: Int = 600) raises:
+def run_viewer(var shell: Shell, title: String = "geokernel viewer",
+               width: Int = 800, height: Int = 600,
+               watch_path: String = "") raises:
     """Open a window and interactively view a Shell.
 
     Controls:
@@ -19,6 +21,9 @@ def run_viewer(shell: Shell, title: String = "geokernel viewer",
       S: shaded mode
       Ctrl+D: toggle diagnostics overlay
       Q / ESC: quit
+
+    If watch_path is set, the file is monitored for changes and
+    geometry is reloaded automatically (hot-reload).
     """
     # Compute bounding box center for initial camera target
     var min_x: FType = 1e30
@@ -93,6 +98,15 @@ def run_viewer(shell: Shell, title: String = "geokernel viewer",
     for fi in range(num_faces):
         num_verts += shell.faces[fi].num_vertices()
 
+    # File watching (hot-reload)
+    var os_mod = Python.import_module("os")
+    var last_mtime: Float64 = 0.0
+    var reload_counter = 0
+    var reload_interval = 60  # check every 60 frames (~1s)
+    if len(watch_path) > 0:
+        last_mtime = Float64(py=os_mod.path.getmtime(watch_path))
+        print("Watching:", watch_path, "(hot-reload enabled)")
+
     print("geokernel viewer started")
     print("  Left drag: orbit | Right drag: pan | Wheel: zoom")
     print("  W: wireframe | S: shaded | Ctrl+D: diagnostics | Q/ESC: quit")
@@ -148,6 +162,31 @@ def run_viewer(shell: Shell, title: String = "geokernel viewer",
 
             elif kind == 4:  # MOUSEWHEEL
                 camera.zoom(FType(wheel_y))
+
+        # Hot-reload check
+        if len(watch_path) > 0:
+            reload_counter += 1
+            if reload_counter >= reload_interval:
+                reload_counter = 0
+                var current_mtime = Float64(py=os_mod.path.getmtime(watch_path))
+                if current_mtime != last_mtime:
+                    last_mtime = current_mtime
+                    print("File changed, reloading:", watch_path)
+                    var content = open(watch_path, "r").read()
+                    var new_faces: List[Face]
+                    if watch_path.endswith(".obj"):
+                        new_faces = import_obj(content)
+                    elif watch_path.endswith(".stl"):
+                        new_faces = import_stl_ascii(content)
+                    else:
+                        new_faces = List[Face]()
+                    if len(new_faces) > 0:
+                        shell = Shell(new_faces)
+                        num_faces = len(shell.faces)
+                        num_verts = 0
+                        for fi in range(num_faces):
+                            num_verts += shell.faces[fi].num_vertices()
+                        print("Reloaded:", num_faces, "faces,", num_verts, "vertices")
 
         # Render
         fb.clear()

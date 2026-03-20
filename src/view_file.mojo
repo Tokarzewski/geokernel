@@ -31,4 +31,4 @@ def main() raises:
 
     var shell = Shell(faces)
     print("Loaded", len(shell.faces), "faces")
-    run_viewer(shell, "geokernel - " + path)
+    run_viewer(shell, "geokernel - " + path, watch_path=path)
