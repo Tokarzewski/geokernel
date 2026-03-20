@@ -33,9 +33,12 @@ struct Framebuffer(Copyable, Movable):
 
     def clear(mut self):
         """Clear to black with infinite depth."""
-        for i in range(self.width * self.height):
-            self.pixels[i] = UInt32(0xFF000000)
-            self.zbuffer[i] = 1e30
+        var n = self.width * self.height
+        var pptr = self.pixels.unsafe_ptr()
+        var zptr = self.zbuffer.unsafe_ptr()
+        for i in range(n):
+            pptr[i] = UInt32(0xFF000000)
+            zptr[i] = 1e30
 
     def set_pixel(mut self, x: Int, y: Int, z: FType, color: UInt32):
         """Set pixel with Z-buffer test."""

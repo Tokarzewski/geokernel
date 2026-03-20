@@ -43,7 +43,7 @@ class SDLHelper:
         # Create renderer
         self.sdl.SDL_CreateRenderer.restype = ctypes.c_void_p
         self.renderer = self.sdl.SDL_CreateRenderer(
-            ctypes.c_void_p(self.window), -1, 0x00000001  # SDL_RENDERER_SOFTWARE
+            ctypes.c_void_p(self.window), -1, 0x00000002  # SDL_RENDERER_ACCELERATED
         )
 
         # Create texture
@@ -63,11 +63,40 @@ class SDLHelper:
         # Pixel buffer for updates
         self._pixel_arr = (ctypes.c_uint32 * (width * height))()
 
-    def update_pixels(self, pixel_data: list):
-        """Upload pixel data (list of uint32 ARGB) to screen."""
-        n = self.width * self.height
-        for i in range(n):
-            self._pixel_arr[i] = pixel_data[i]
+    def update_pixels_ptr(self, ptr_addr: int, count: int):
+        """Upload pixels directly from a memory address (zero-copy from Mojo).
+        
+        Passes the Mojo List[UInt32] data pointer directly to SDL_UpdateTexture —
+        no intermediate copy needed.
+        """
+        self.sdl.SDL_UpdateTexture(
+            ctypes.c_void_p(self.texture),
+            None,
+            ctypes.c_void_p(ptr_addr),
+            self.width * 4,
+        )
+        self.sdl.SDL_RenderClear(ctypes.c_void_p(self.renderer))
+        self.sdl.SDL_RenderCopy(
+            ctypes.c_void_p(self.renderer),
+            ctypes.c_void_p(self.texture),
+            None, None,
+        )
+        self.sdl.SDL_RenderPresent(ctypes.c_void_p(self.renderer))
+
+    def update_pixels(self, pixel_data):
+        """Upload pixel data to screen. Accepts bytes or list of uint32."""
+        if isinstance(pixel_data, (bytes, bytearray)):
+            # Fast path: raw bytes, direct memcpy
+            ctypes.memmove(
+                ctypes.cast(self._pixel_arr, ctypes.c_void_p),
+                pixel_data,
+                self.width * self.height * 4,
+            )
+        else:
+            # Slow fallback: list of ints
+            n = self.width * self.height
+            for i in range(n):
+                self._pixel_arr[i] = pixel_data[i]
 
         self.sdl.SDL_UpdateTexture(
             ctypes.c_void_p(self.texture),
@@ -140,6 +169,30 @@ class SDLHelper:
             events.append((kind, key, mx, my, wheel_y, button, modifiers))
 
         return events
+
+    def present_and_poll(self, ptr_addr: int, count: int, delay_ms: int):
+        """Combined update + present + delay + poll in one call to minimize Mojo↔Python round trips."""
+        # Update texture from Mojo framebuffer pointer
+        self.sdl.SDL_UpdateTexture(
+            ctypes.c_void_p(self.texture),
+            None,
+            ctypes.c_void_p(ptr_addr),
+            self.width * 4,
+        )
+        self.sdl.SDL_RenderClear(ctypes.c_void_p(self.renderer))
+        self.sdl.SDL_RenderCopy(
+            ctypes.c_void_p(self.renderer),
+            ctypes.c_void_p(self.texture),
+            None, None,
+        )
+        self.sdl.SDL_RenderPresent(ctypes.c_void_p(self.renderer))
+        
+        # Delay
+        if delay_ms > 0:
+            self.sdl.SDL_Delay(delay_ms)
+        
+        # Poll events
+        return self.poll_events()
 
     def delay(self, ms: int):
         self.sdl.SDL_Delay(ms)

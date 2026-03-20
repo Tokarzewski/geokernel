@@ -97,10 +97,11 @@ def run_viewer(shell: Shell, title: String = "geokernel viewer",
     print("  Left drag: orbit | Right drag: pan | Wheel: zoom")
     print("  W: wireframe | S: shaded | Ctrl+D: diagnostics | Q/ESC: quit")
 
+    # Initial empty event list
+    var builtins = Python.import_module("builtins")
+    var py_events = builtins.list()
+
     while win.is_open:
-        # Poll events via Python helper
-        var py_events = win.poll_events()
-        var builtins = Python.import_module("builtins")
         var num_events = Int(py=builtins.len(py_events))
 
         for i in range(num_events):
@@ -194,10 +195,8 @@ def run_viewer(shell: Shell, title: String = "geokernel viewer",
             # Resolution
             draw_text(fb, 6, 55, String(width) + "x" + String(height), diag_color)
 
-        win.update_texture(fb)
-
-        # ~60fps cap
-        win.delay(16)
+        # Present frame + poll events in one Python call (minimizes interop overhead)
+        py_events = win.present_and_poll(fb, 16)
 
     win.destroy()
     print("Viewer closed.")

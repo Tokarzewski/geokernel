@@ -35,11 +35,17 @@ struct SDLWindow(Movable):
 
     def update_texture(mut self, fb: Framebuffer) raises:
         """Upload framebuffer pixels to SDL texture and present."""
-        var builtins = Python.import_module("builtins")
-        var pixel_list = builtins.list()
-        for i in range(self.width * self.height):
-            _ = pixel_list.append(Int(fb.pixels[i]))
-        self.helper.update_pixels(pixel_list)
+        var ptr = fb.pixels.unsafe_ptr()
+        var addr = Int(ptr)
+        var n = self.width * self.height
+        self.helper.update_pixels_ptr(addr, n)
+
+    def present_and_poll(mut self, fb: Framebuffer, delay_ms: Int) raises -> PythonObject:
+        """Combined upload + present + delay + poll in one Mojo↔Python call."""
+        var ptr = fb.pixels.unsafe_ptr()
+        var addr = Int(ptr)
+        var n = self.width * self.height
+        return self.helper.present_and_poll(addr, n, delay_ms)
 
     def poll_events(mut self) raises -> PythonObject:
         """Poll SDL events. Returns Python list of tuples."""
