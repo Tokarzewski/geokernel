@@ -112,6 +112,18 @@ struct Face(Copyable, Movable, ImplicitlyCopyable):
             weighted_sum += triangle_centroid * triangle_area
             total_area += triangle_area
 
+        if total_area == 0.0:
+            # Degenerate face (all vertices collinear or coincident)
+            # Fall back to simple average of vertices
+            var sx: FType = 0.0
+            var sy: FType = 0.0
+            var sz: FType = 0.0
+            var n = self.num_vertices()
+            for i in range(n):
+                sx += self.points[i].x
+                sy += self.points[i].y
+                sz += self.points[i].z
+            return Point(sx / FType(n), sy / FType(n), sz / FType(n))
         return weighted_sum / total_area
 
     def is_planar(self, atol: FType = 1e-10) -> Bool:
