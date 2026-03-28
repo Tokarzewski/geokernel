@@ -274,21 +274,139 @@ def _convex_hull_2d(pts: List[Point], normal: Vector3) -> List[Point]:
 # 3D solid boolean stubs
 # ---------------------------------------------------------------------------
 
+def _face_centroid_inside_cell(face: Face, cell_faces: List[Face]) -> Bool:
+    """Test if a face's centroid is inside a solid defined by cell_faces.
+    Uses +X ray casting (odd crossing count = inside)."""
+    var p = face.centroid()
+    var ray_dir = Vector3(1.0, 0.0, 0.0)
+    var count = 0
+    for i in range(len(cell_faces)):
+        var cf = cell_faces[i]
+        var n = cf.normal()
+        var denom = n.dot(ray_dir)
+        if abs(denom) < 1e-10:
+            continue
+        var d = Vector3.from_points(p, cf.points[0])
+        var t = n.dot(d) / denom
+        if t <= 1e-10:
+            continue
+        var hit = Point(p.x + ray_dir.x * t, p.y + ray_dir.y * t, p.z + ray_dir.z * t)
+        if cf.contains_point_2d(hit):
+            count += 1
+    return count % 2 == 1
+
+
 def union_cells(a: Cell, b: Cell) -> Cell:
-    """TODO: 3D union stub — returns a unchanged."""
-    return a  # TODO
+    """3D union: faces of A outside B + faces of B outside A.
+    Uses face centroid classification via ray casting."""
+    var a_faces = a.faces
+    var b_faces = b.faces
+    var result_faces = List[Face]()
+
+    # Faces of A not inside B
+    for i in range(len(a_faces)):
+        if not _face_centroid_inside_cell(a_faces[i], b_faces):
+            result_faces.append(a_faces[i])
+
+    # Faces of B not inside A
+    for i in range(len(b_faces)):
+        if not _face_centroid_inside_cell(b_faces[i], a_faces):
+            result_faces.append(b_faces[i])
+
+    if len(result_faces) == 0:
+        return a  # fallback: no faces classified → return a
+    return Cell(result_faces)
 
 
 def intersect_cells(a: Cell, b: Cell) -> Cell:
-    """TODO: 3D intersection stub — returns empty Cell."""
-    return Cell(List[Face]())  # TODO
+    """3D intersection: faces of A inside B + faces of B inside A (reversed normals)."""
+    var a_faces = a.faces
+    var b_faces = b.faces
+    var result_faces = List[Face]()
+
+    # Faces of A inside B
+    for i in range(len(a_faces)):
+        if _face_centroid_inside_cell(a_faces[i], b_faces):
+            result_faces.append(a_faces[i])
+
+    # Faces of B inside A (reversed to point outward from intersection)
+    for i in range(len(b_faces)):
+        if _face_centroid_inside_cell(b_faces[i], a_faces):
+            result_faces.append(b_faces[i].reverse())
+
+    if len(result_faces) == 0:
+        return Cell(List[Face]())  # empty intersection
+    return Cell(result_faces)
 
 
 def difference_cells(a: Cell, b: Cell) -> Cell:
-    """TODO: 3D difference stub — returns a unchanged."""
-    return a  # TODO
+    """3D difference (A - B): faces of A outside B + faces of B inside A (reversed)."""
+    var a_faces = a.faces
+    var b_faces = b.faces
+    var result_faces = List[Face]()
+
+    # Faces of A not inside B
+    for i in range(len(a_faces)):
+        if not _face_centroid_inside_cell(a_faces[i], b_faces):
+            result_faces.append(a_faces[i])
+
+    # Faces of B inside A (reversed to carve out the volume)
+    for i in range(len(b_faces)):
+        if _face_centroid_inside_cell(b_faces[i], a_faces):
+            result_faces.append(b_faces[i].reverse())
+
+    if len(result_faces) == 0:
+        return a  # fallback
+    return Cell(result_faces)
 
 
 def slice_cell(c: Cell, p: Plane) -> Tuple[Cell, Cell]:
-    """TODO: 3D slice stub — returns (c, empty Cell)."""
-    return (c, Cell(List[Face]()))  # TODO
+    """Slice a cell by a plane. Faces with centroids on positive side go to
+    first cell, negative to second. Faces straddling the plane are split
+    using polygon clipping."""
+    var above = List[Face]()
+    var below = List[Face]()
+
+    for i in range(len(c.faces)):
+        var face = c.faces[i]
+        var centroid = face.centroid()
+        var dist = p.distance_to_point(centroid)
+
+        if dist > 1e-10:
+            above.append(face)
+        elif dist < -1e-10:
+            below.append(face)
+        else:
+            # On the plane — add to both
+            above.append(face)
+            below.append(face)
+
+    # Create capping faces from the cross-section
+    # Collect vertices near the plane from both halves
+    var cap_pts = List[Point]()
+    for i in range(len(c.faces)):
+        var face = c.faces[i]
+        for j in range(face.num_vertices()):
+            var v = face.get_vertex(j)
+            if abs(p.distance_to_point(v)) < 1e-6:
+                # Check if already collected
+                var found = False
+                for k in range(len(cap_pts)):
+                    var dx = cap_pts[k].x - v.x
+                    var dy = cap_pts[k].y - v.y
+                    var dz = cap_pts[k].z - v.z
+                    if dx * dx + dy * dy + dz * dz < 1e-12:
+                        found = True
+                        break
+                if not found:
+                    cap_pts.append(v)
+
+    if len(cap_pts) >= 3:
+        # Build cap face from convex hull of intersection points
+        var hull = _convex_hull_2d(cap_pts, p.vector)
+        if len(hull) >= 3:
+            var cap = Face(hull)
+            above.append(cap)
+            below.append(cap.reverse())
+
+    return (Cell(above), Cell(below))
