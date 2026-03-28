@@ -234,6 +234,57 @@ struct NurbsCurve(Copyable, Movable, ImplicitlyCopyable):
         var dz = closest.z - p.z
         return sqrt(dx * dx + dy * dy + dz * dz)
 
+    def reverse(self) -> NurbsCurve:
+        """Return a new curve with reversed parameterization."""
+        var n = self.num_control_points()
+        var rev_pts = List[Point]()
+        var rev_weights = List[FType]()
+        for i in range(n - 1, -1, -1):
+            rev_pts.append(self.control_points[i])
+            rev_weights.append(self.weights[i])
+        # Reverse and remap knots: new_knot[i] = knot_max - knot[n_knots-1-i] + knot_min
+        var nk = len(self.knots)
+        var k_min = self.knots[0]
+        var k_max = self.knots[nk - 1]
+        var rev_knots = List[FType]()
+        for i in range(nk - 1, -1, -1):
+            rev_knots.append(k_max - self.knots[i] + k_min)
+        return NurbsCurve(rev_pts, rev_knots, self.degree, rev_weights)
+
+    def sample(self, num_points: Int = 50) -> List[Point]:
+        """Sample the curve at uniform parameter intervals."""
+        var result = List[Point]()
+        var n = self.num_control_points()
+        if n == 0:
+            return result^
+        var t_min = self.knots[self.degree]
+        var t_max = self.knots[n]
+        for i in range(num_points + 1):
+            var t = t_min + (t_max - t_min) * FType(i) / FType(num_points)
+            result.append(self.point_at(t))
+        return result^
+
+    def curvature_at(self, t: FType) -> FType:
+        """Approximate curvature at parameter t via finite differences.
+        Curvature = |T'| / |r'| where T is the unit tangent."""
+        var h: FType = 1e-5
+        var d1 = self.derivative_at(t)
+        var d2_plus = self.derivative_at(t + h)
+        var d2_minus = self.derivative_at(t - h)
+        # Second derivative approximation
+        var ddx = (d2_plus.x - d2_minus.x) / (2.0 * h)
+        var ddy = (d2_plus.y - d2_minus.y) / (2.0 * h)
+        var ddz = (d2_plus.z - d2_minus.z) / (2.0 * h)
+        # Cross product of first and second derivatives
+        var cx = d1.y * ddz - d1.z * ddy
+        var cy = d1.z * ddx - d1.x * ddz
+        var cz = d1.x * ddy - d1.y * ddx
+        var cross_mag = sqrt(cx * cx + cy * cy + cz * cz)
+        var d1_mag = d1.length()
+        if d1_mag < 1e-15:
+            return 0.0
+        return cross_mag / (d1_mag * d1_mag * d1_mag)
+
     def __repr__(self) -> String:
         return (
             "NurbsCurve(degree="

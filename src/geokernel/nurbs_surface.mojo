@@ -237,6 +237,50 @@ struct NurbsSurface(Copyable, Movable, Surface):
                     return False
         return True
 
+    def tessellate(self, u_segments: Int = 16, v_segments: Int = 16) -> List[Face]:
+        """Tessellate the surface into triangular faces.
+
+        Samples the surface on a regular u×v grid and creates
+        two triangles per grid cell.
+        """
+        from geokernel import Face
+        var result = List[Face]()
+        var u_min = self.knots_u[0]
+        var u_max = self.knots_u[len(self.knots_u) - 1]
+        var v_min = self.knots_v[0]
+        var v_max = self.knots_v[len(self.knots_v) - 1]
+
+        var du = (u_max - u_min) / FType(u_segments)
+        var dv = (v_max - v_min) / FType(v_segments)
+
+        # Pre-compute grid points
+        var grid = List[List[Point]]()
+        for i in range(u_segments + 1):
+            var row = List[Point]()
+            for j in range(v_segments + 1):
+                var u = u_min + FType(i) * du
+                var v = v_min + FType(j) * dv
+                row.append(self.point_at(u, v))
+            grid.append(row^)
+
+        # Create two triangles per cell
+        for i in range(u_segments):
+            for j in range(v_segments):
+                var p00 = grid[i][j]
+                var p10 = grid[i + 1][j]
+                var p11 = grid[i + 1][j + 1]
+                var p01 = grid[i][j + 1]
+                # Triangle 1: p00, p10, p11
+                var t1 = List[Point]()
+                t1.append(p00); t1.append(p10); t1.append(p11)
+                result.append(Face(t1))
+                # Triangle 2: p00, p11, p01
+                var t2 = List[Point]()
+                t2.append(p00); t2.append(p11); t2.append(p01)
+                result.append(Face(t2))
+
+        return result^
+
     def __repr__(self) -> String:
         return (
             "NurbsSurface(nu="
