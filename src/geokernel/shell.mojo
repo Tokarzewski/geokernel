@@ -29,9 +29,11 @@ struct Shell(Copyable, Movable, ImplicitlyCopyable):
         return area
 
     def open_edges(self) -> List[Tuple[Point, Point]]:
-        """Return edges not shared by exactly 2 faces."""
-        var edge_count = List[Tuple[Point, Point]]()
-        var edge_counts_val = List[Int]()
+        """Return edges not shared by exactly 2 faces.
+        Uses hash-based edge key for O(n) matching instead of O(n²)."""
+        from std.collections import Dict
+        var edge_counts = Dict[String, Int]()
+        var edge_map = Dict[String, Tuple[Point, Point]]()
 
         for fi in range(len(self.faces)):
             var face = self.faces[fi]
@@ -40,25 +42,24 @@ struct Shell(Copyable, Movable, ImplicitlyCopyable):
                 var edge = face.get_edge(ei)
                 var p1 = edge.p1
                 var p2 = edge.p2
-                # Check if this edge (or its reverse) is already tracked
-                var found = False
-                for k in range(len(edge_count)):
-                    var ep1 = edge_count[k][0]
-                    var ep2 = edge_count[k][1]
-                    var forward = (ep1 == p1) and (ep2 == p2)
-                    var reverse = (ep1 == p2) and (ep2 == p1)
-                    if forward or reverse:
-                        edge_counts_val[k] = edge_counts_val[k] + 1
-                        found = True
-                        break
-                if not found:
-                    edge_count.append((p1, p2))
-                    edge_counts_val.append(1)
+                # Create canonical edge key (sorted by coordinates)
+                var k1 = String(p1.x) + "," + String(p1.y) + "," + String(p1.z)
+                var k2 = String(p2.x) + "," + String(p2.y) + "," + String(p2.z)
+                var key: String
+                if k1 < k2:
+                    key = k1 + "|" + k2
+                else:
+                    key = k2 + "|" + k1
+                if key in edge_counts:
+                    edge_counts[key] = edge_counts[key] + 1
+                else:
+                    edge_counts[key] = 1
+                    edge_map[key] = (p1, p2)
 
         var result = List[Tuple[Point, Point]]()
-        for k in range(len(edge_count)):
-            if edge_counts_val[k] != 2:
-                result.append(edge_count[k])
+        for entry in edge_counts.items():
+            if entry[].value != 2:
+                result.append(edge_map[entry[].key])
         return result^
 
     def has_holes(self) -> Bool:

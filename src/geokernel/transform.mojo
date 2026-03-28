@@ -29,10 +29,23 @@ struct Transform(Copyable, Movable, ImplicitlyCopyable):
         return Self(movement, scale, rotation)
 
     def combine(self, other: Self) -> Self:
-        movement = self.movement + other.movement
-        scale = self.scale + other.scale
-        rotation = self.rotation * other.rotation
-        return Self(movement, scale, rotation)
+        """Combine two transforms: apply self first, then other.
+        Scales multiply component-wise. Movement applies rotation and scale
+        of the first transform to the second's translation."""
+        var new_scale = Vector3(
+            self.scale.x * other.scale.x,
+            self.scale.y * other.scale.y,
+            self.scale.z * other.scale.z,
+        )
+        var rotated_other_movement = self.rotation.rotate_vector(other.movement)
+        var scaled_movement = Vector3(
+            rotated_other_movement.x * self.scale.x,
+            rotated_other_movement.y * self.scale.y,
+            rotated_other_movement.z * self.scale.z,
+        )
+        var new_movement = self.movement + scaled_movement
+        var new_rotation = self.rotation * other.rotation
+        return Self(new_movement, new_scale, new_rotation)
 
     # fn matrix4(self) -> Matrix4:
     #    return Matrix4()

@@ -197,11 +197,46 @@ def shell_to_point(shell: Shell, p: Point) -> FType:
 
 def shell_to_shell(s1: Shell, s2: Shell) -> FType:
     """Minimum distance between two shells.
-    Iterate face pairs, return minimum face_to_face distance."""
+    Uses BVH acceleration to avoid O(n×m) brute force."""
+    from geokernel import AABB, BVH
+
+    var n1 = len(s1.faces)
+    var n2 = len(s2.faces)
+    if n1 == 0 or n2 == 0:
+        return FType(0.0)
+
+    # Build AABBs for s2 faces
+    var aabbs2 = List[AABB]()
+    for i in range(n2):
+        var face = s2.faces[i]
+        var pts = List[Point]()
+        for j in range(face.num_vertices()):
+            pts.append(face.get_vertex(j))
+        aabbs2.append(AABB(pts))
+    var bvh2 = BVH(aabbs2)
+
     var min_dist = FType(1.0e18)
-    for i in range(len(s1.faces)):
-        for j in range(len(s2.faces)):
-            var d = face_to_face(s1.faces[i], s2.faces[j])
+    for i in range(n1):
+        var face1 = s1.faces[i]
+        # Build AABB for face1
+        var pts1 = List[Point]()
+        for j in range(face1.num_vertices()):
+            pts1.append(face1.get_vertex(j))
+        var aabb1 = AABB(pts1)
+
+        # Query BVH for candidate faces in s2
+        var candidates = bvh2.query_aabb(aabb1)
+        if len(candidates) == 0:
+            # No AABB overlap — use centroid-to-shell distance as lower bound
+            var c1 = face1.centroid()
+            var d = shell_to_point(s2, c1)
             if d < min_dist:
                 min_dist = d
+        else:
+            for k in range(len(candidates)):
+                var d = face_to_face(face1, s2.faces[candidates[k]])
+                if d < min_dist:
+                    min_dist = d
+                    if min_dist <= 0.0:
+                        return 0.0
     return min_dist

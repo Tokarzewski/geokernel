@@ -180,7 +180,13 @@ struct Triangulation:
 
     @staticmethod
     def triangulate_face(face: Face) -> List[Face]:
-        """Fan triangulation from first vertex. Returns list of triangle Faces."""
+        """Triangulate a face using ear-clipping (handles concave polygons).
+        Falls back to fan triangulation for triangles."""
+        return triangulate_face_ear_clipping(face)
+
+    @staticmethod
+    def triangulate_face_fan(face: Face) -> List[Face]:
+        """Fan triangulation from first vertex (convex polygons only)."""
         var result = List[Face]()
         var n = face.num_vertices()
         if n < 3:

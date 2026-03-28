@@ -86,7 +86,11 @@ struct Vector3(Copyable, Movable, ImplicitlyCopyable, Writable):
         return Self(-self.x, -self.y, -self.z)
 
     def inverse(self) -> Self:
-        return Self(1 / self.x, 1 / self.y, 1 / self.z)
+        """Component-wise reciprocal. Zero components are left as zero."""
+        var ix = 1.0 / self.x if abs(self.x) > 1e-30 else 0.0
+        var iy = 1.0 / self.y if abs(self.y) > 1e-30 else 0.0
+        var iz = 1.0 / self.z if abs(self.z) > 1e-30 else 0.0
+        return Self(ix, iy, iz)
 
     def dot(self, other: Self) -> FType:
         """
@@ -110,8 +114,10 @@ struct Vector3(Copyable, Movable, ImplicitlyCopyable, Writable):
         return sqrt(self.dot(self))
 
     def normalize(self) -> Self:
-        scale = 1 / self.length()
-        return self * scale
+        var len = self.length()
+        if len < 1e-15:
+            return Self(0.0, 0.0, 0.0)
+        return self * (1.0 / len)
 
     def angle(self, other: Self) -> FType:
         """Calculate angle in radians between two vectors."""

@@ -43,16 +43,25 @@ struct Point(Copyable, Movable, ImplicitlyCopyable, Writable):
         self = self.__sub__(other)
 
     def __lt__(self, other: Self) -> Bool:
-        return self.x < other.x and self.y < other.y and self.z < other.z
+        """Lexicographic ordering: compare x, then y, then z."""
+        if self.x != other.x:
+            return self.x < other.x
+        if self.y != other.y:
+            return self.y < other.y
+        return self.z < other.z
 
     def __le__(self, other: Point) -> Bool:
-        return self.x <= other.x and self.y <= other.y and self.z <= other.z
+        return self == other or self < other
 
     def __gt__(self, other: Point) -> Bool:
-        return self.x > other.x and self.y > other.y and self.z > other.z
+        if self.x != other.x:
+            return self.x > other.x
+        if self.y != other.y:
+            return self.y > other.y
+        return self.z > other.z
 
     def __ge__(self, other: Point) -> Bool:
-        return self.x >= other.x and self.y >= other.y and self.z >= other.z
+        return self == other or self > other
 
     def write_to(self, mut writer: Some[Writer]):
         writer.write("Point(", self.x, ", ", self.y, ", ", self.z, ")")
