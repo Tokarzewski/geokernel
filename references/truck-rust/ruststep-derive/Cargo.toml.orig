@@ -1,0 +1,36 @@
+[package]
+name = "ruststep-derive"
+version = "0.4.0"
+authors = ["Yoshinori Tanimura <tanimura@ricos.co.jp>", "Toshiki Teramura <toshiki.teramura@gmail.com>"]
+edition = "2021"
+rust-version = "1.75.0"
+
+description   = "proc-macro for ruststep"
+documentation = "https://ricosjp.github.io/ruststep/ruststep_derive/index.html"
+repository    = "https://github.com/ricosjp/ruststep"
+keywords      = ["step", "cad", "proc-macro"]
+license       = "Apache-2.0"
+readme        = "../README.md"
+categories    = ["science", "development-tools"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote = "1.0.37"
+proc-macro2 = "1.0.86"
+syn = { version = "2.0.56", features = ["full", "extra-traits"] }
+proc-macro-crate = "1.3.0"
+Inflector = "0.11.4"
+proc-macro-error = "1.0.4"
+
+[dev-dependencies]
+serde = "1.0.210"
+trybuild = "1.0.90"
+insta = "1.39.0"
+
+[dev-dependencies.ruststep]
+path = "../ruststep"
+
+[dev-dependencies.espr]
+path = "../espr"
